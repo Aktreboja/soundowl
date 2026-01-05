@@ -1,8 +1,9 @@
 'use client';
-
+import Navbar from '@/components/Layout/Navbar';
+import ProfileCard from '@/components/Dashboard/ProfileCard';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Image from 'next/image';
+import TopTracksContent from '@/components/Dashboard/TopTracksContent';
 
 interface SpotifyProfile {
   id: string;
@@ -109,63 +110,15 @@ export default function Dashboard() {
     );
   }
 
+  // If profile is found, display user information
   if (profile) {
     return (
       <div className="app-container">
-        <div className="main-card-wrapper">
-          <h1 className="main-title">Your Spotify Profile</h1>
+        <div className="w-4/5">
+          <h1 className="main-title">Welcome back, {profile.display_name}</h1>
           <div className="logged-in-section">
-            <div className="profile-card action-card">
-              {profile.images && profile.images.length > 0 && (
-                <Image
-                  src={profile.images[0].url}
-                  alt={profile.display_name || 'Profile'}
-                  width={110}
-                  height={110}
-                  className="profile-picture"
-                  style={{ borderRadius: '50%', objectFit: 'cover' }}
-                />
-              )}
-              <h2 className="profile-name">
-                {profile.display_name || 'No name'}
-              </h2>
-              {profile.email && (
-                <p className="profile-email">{profile.email}</p>
-              )}
-              <div
-                style={{
-                  marginTop: '1.5rem',
-                  textAlign: 'center',
-                  width: '100%',
-                }}
-              >
-                <p style={{ color: '#a0aec0', marginBottom: '0.5rem' }}>
-                  <strong>Country:</strong> {profile.country || 'N/A'}
-                </p>
-                <p style={{ color: '#a0aec0', marginBottom: '0.5rem' }}>
-                  <strong>Followers:</strong>{' '}
-                  {profile.followers?.total?.toLocaleString() || 0}
-                </p>
-                <p style={{ color: '#a0aec0', marginBottom: '0.5rem' }}>
-                  <strong>Plan:</strong> {profile.product || 'N/A'}
-                </p>
-                {profile.external_urls?.spotify && (
-                  <a
-                    href={profile.external_urls.spotify}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      color: '#63b3ed',
-                      textDecoration: 'none',
-                      display: 'inline-block',
-                      marginTop: '1rem',
-                    }}
-                  >
-                    View on Spotify →
-                  </a>
-                )}
-              </div>
-            </div>
+            <ProfileCard {...profile} />
+            <TopTracksContent />
             <button onClick={handleLogout} className="button logout">
               Disconnect Spotify
             </button>

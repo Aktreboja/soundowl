@@ -5,6 +5,7 @@ import {
   generateCodeChallenge,
 } from '../../../../lib/spotify-pkce';
 
+// TODO (AR): Modularize logic
 export async function GET() {
   const clientId = process.env.SPOTIFY_CLIENT_ID;
   const redirectUri =
@@ -45,7 +46,7 @@ export async function GET() {
     maxAge: 600, // 10 minutes
   });
 
-  const scope = 'user-read-private user-read-email user-read-playback-state';
+  const scope = process.env.SPOTIFY_API_SCOPES as string;
   const authUrl =
     `https://accounts.spotify.com/authorize?` +
     `response_type=code&` +
