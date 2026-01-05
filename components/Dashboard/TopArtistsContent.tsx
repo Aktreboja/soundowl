@@ -9,8 +9,12 @@ import {
   SelectRoot,
   SelectTrigger,
 } from '../ui/select';
-import { createListCollection, DialogRoot } from '@chakra-ui/react';
-import { DialogTrigger } from '@chakra-ui/react';
+import {
+  Card,
+  createListCollection,
+  DialogRoot,
+  DialogTrigger,
+} from '@chakra-ui/react';
 import { Tooltip } from '../ui/tooltip';
 
 const timeRangeItems = [
@@ -50,12 +54,17 @@ export const TopArtistsContent = () => {
   }, [timeRange]);
 
   return (
-    <div className="card bg-gray-700 w-full flex flex-col gap-4">
-      <h2 className="font-bold! text-lg! mb-2">Your Top Artists</h2>
+    <Card.Root
+      variant="elevated"
+      className="card w-full flex flex-col gap-4"
+      bg={{ base: 'white', _dark: 'gray.800' }}
+    >
+      <h2 className="font-bold text-lg mb-2">Your Top Artists</h2>
       <div>
         <SelectRoot
           collection={collection}
           size="sm"
+          variant="subtle"
           defaultValue={[timeRange]}
           onValueChange={(value) => setTimeRange(value.value[0])}
         >
@@ -72,7 +81,7 @@ export const TopArtistsContent = () => {
         </SelectRoot>
       </div>
       <DialogRoot size="lg" placement="center">
-        <div className="grid grid-cols-10 max-md:grid-cols-5">
+        <div className="grid grid-cols-5">
           {topArtists.map((artist) => (
             <Tooltip content={artist.name} key={artist.id} showArrow>
               <DialogTrigger
@@ -82,13 +91,13 @@ export const TopArtistsContent = () => {
               >
                 <div
                   key={artist.id}
-                  className="cursor-pointer hover:opacity-80"
+                  className="cursor-pointer hover:opacity-80 aspect-square overflow-hidden"
                 >
                   <Image
                     src={artist.images[0].url}
                     alt={artist.name}
-                    width={64}
-                    height={64}
+                    width={100}
+                    height={100}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -99,7 +108,7 @@ export const TopArtistsContent = () => {
 
         {/* {selectedArtist && <ArtistDialog selectedArtist={selectedArtist} />} */}
       </DialogRoot>
-    </div>
+    </Card.Root>
   );
 };
 

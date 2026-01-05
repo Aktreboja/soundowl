@@ -9,8 +9,12 @@ import {
   SelectRoot,
   SelectTrigger,
 } from '../ui/select';
-import { createListCollection, DialogRoot } from '@chakra-ui/react';
-import { DialogTrigger } from '@chakra-ui/react';
+import {
+  createListCollection,
+  DialogRoot,
+  Card,
+  DialogTrigger,
+} from '@chakra-ui/react';
 import { Tooltip } from '../ui/tooltip';
 import { TrackDialog } from './TrackDialog';
 
@@ -49,12 +53,17 @@ export const TopTracksContent = () => {
   }, [timeRange]);
 
   return (
-    <div className="card bg-gray-700 w-full flex flex-col gap-4">
-      <h2 className="font-bold! text-lg! mb-2">Your Top Tracks</h2>
+    <Card.Root
+      variant="elevated"
+      className="card w-full flex flex-col gap-4"
+      bg={{ base: 'white', _dark: 'gray.800' }}
+    >
+      <h2 className="font-bold text-lg mb-2">Your Top Tracks</h2>
       <div>
         <SelectRoot
           collection={collection}
           size="sm"
+          variant="subtle"
           defaultValue={[timeRange]}
           onValueChange={(value) => setTimeRange(value.value[0])}
         >
@@ -71,7 +80,7 @@ export const TopTracksContent = () => {
         </SelectRoot>
       </div>
       <DialogRoot size="lg" placement="center">
-        <div className="grid grid-cols-10 max-md:grid-cols-5">
+        <div className="grid grid-cols-5">
           {topTracks.map((track) => (
             <Tooltip content={track.name} key={track.id} showArrow>
               <DialogTrigger
@@ -95,7 +104,7 @@ export const TopTracksContent = () => {
 
         {selectedTrack && <TrackDialog selectedTrack={selectedTrack} />}
       </DialogRoot>
-    </div>
+    </Card.Root>
   );
 };
 

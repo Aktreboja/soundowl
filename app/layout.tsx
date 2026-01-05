@@ -4,7 +4,7 @@ import { Provider as ChakraProvider } from '@/components/ui/provider';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Auth0 Next.js App',
+  title: 'SoundOwl',
   description: 'Next.js app with Auth0 authentication',
 };
 

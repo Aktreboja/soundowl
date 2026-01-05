@@ -1,10 +1,10 @@
 'use client';
-import Navbar from '@/components/Layout/Navbar';
-import ProfileCard from '@/components/Dashboard/ProfileCard';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import TopTracksContent from '@/components/Dashboard/TopTracksContent';
 import TopArtistsContent from '@/components/Dashboard/TopArtistsContent';
+import { ColorModeButton } from '@/components/ui/color-mode';
+import { Box, Card, Button } from '@chakra-ui/react';
 
 interface SpotifyProfile {
   id: string;
@@ -115,12 +115,18 @@ export default function Dashboard() {
   if (profile) {
     return (
       <div className="app-container">
-        <div className="w-4/5">
-          <h1 className="main-title">Welcome back, {profile.display_name}</h1>
+        <div className="w-4/5 max-lg:w-full">
+          <h1 className="text-2xl font-bold text-center">
+            Welcome back, {profile.display_name}
+          </h1>
+          <div className="flex justify-end mb-2">
+            <ColorModeButton />
+          </div>
           <div className="logged-in-section">
-            <ProfileCard {...profile} />
-            <TopTracksContent />
-            <TopArtistsContent />
+            <div className="flex gap-4 max-lg:flex-col">
+              <TopTracksContent />
+              <TopArtistsContent />
+            </div>
             <button onClick={handleLogout} className="button logout">
               Disconnect Spotify
             </button>
@@ -131,18 +137,16 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="app-container">
-      <div className="main-card-wrapper">
-        <h1 className="main-title">Welcome</h1>
-        <div className="action-card">
-          <p className="action-text">
-            Click on the button below to get started
-          </p>
-          <button onClick={handleGetStarted} className="button login">
+    <Box className="app-container" bg={{ base: 'white', _dark: 'gray.800' }}>
+      <div className="flex-flex-col items-center justify-center ">
+        <h1 className="text-2xl font-bold text-center">Welcome to SoundOwl</h1>
+        <div className="flex flex-col items-center justify-center gap-4">
+          <p>Click on the button below to get started</p>
+          <Button variant="solid" colorScheme="blue" onClick={handleGetStarted}>
             Get Started
-          </button>
+          </Button>
         </div>
       </div>
-    </div>
+    </Box>
   );
 }
