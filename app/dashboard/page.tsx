@@ -4,6 +4,7 @@ import ProfileCard from '@/components/Dashboard/ProfileCard';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import TopTracksContent from '@/components/Dashboard/TopTracksContent';
+import TopArtistsContent from '@/components/Dashboard/TopArtistsContent';
 
 interface SpotifyProfile {
   id: string;
@@ -119,6 +120,7 @@ export default function Dashboard() {
           <div className="logged-in-section">
             <ProfileCard {...profile} />
             <TopTracksContent />
+            <TopArtistsContent />
             <button onClick={handleLogout} className="button logout">
               Disconnect Spotify
             </button>

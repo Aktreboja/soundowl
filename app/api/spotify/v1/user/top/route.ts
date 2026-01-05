@@ -5,8 +5,9 @@ export async function GET(request: Request) {
   const timeRange = searchParams.get('time_range') || 'short_term';
   const limit = searchParams.get('limit') || '20';
   const offset = searchParams.get('offset') || '0';
+  const type = searchParams.get('type') || 'tracks';
 
-  const url = `https://api.spotify.com/v1/me/top/tracks?time_range=${timeRange}&limit=${limit}&offset=${offset}`;
+  const url = `https://api.spotify.com/v1/me/top/${type}?time_range=${timeRange}&limit=${limit}&offset=${offset}`;
 
   // fetchWithSpotifyAuth handles:
   // - Getting access token from cookies

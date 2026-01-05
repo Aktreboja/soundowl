@@ -35,17 +35,18 @@ export interface SpotifyImage {
 
 // Artist
 export interface SpotifyArtist {
+  images: SpotifyImage[];
   external_urls: ExternalUrls;
   href: string;
   id: SpotifyID;
   name: string;
-  type: "artist";
+  type: 'artist';
   uri: SpotifyURI;
 }
 
 // Album
 export interface SpotifyAlbum {
-  album_type: "album" | "single" | "compilation";
+  album_type: 'album' | 'single' | 'compilation';
   artists: SpotifyArtist[];
   available_markets: MarketCode[];
   external_urls: ExternalUrls;
@@ -55,9 +56,9 @@ export interface SpotifyAlbum {
   is_playable: boolean;
   name: string;
   release_date: ISODateString;
-  release_date_precision: "year" | "month" | "day";
+  release_date_precision: 'year' | 'month' | 'day';
   total_tracks: number;
-  type: "album";
+  type: 'album';
   uri: SpotifyURI;
 }
 
@@ -84,6 +85,6 @@ export interface SpotifyTrack {
   popularity: number;
   preview_url: string | null;
   track_number: number;
-  type: "track";
+  type: 'track';
   uri: SpotifyURI;
 }
