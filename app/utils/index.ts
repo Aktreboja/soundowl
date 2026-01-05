@@ -151,6 +151,11 @@ export async function fetchWithSpotifyAuth(
           { status: 401 }
         );
       }
+    } else if (!response.ok) {
+      return NextResponse.json(
+        { error: 'Failed to fetch data: ' + (await response.text()) },
+        { status: response.status }
+      );
     }
 
     // Convert fetch Response to NextResponse

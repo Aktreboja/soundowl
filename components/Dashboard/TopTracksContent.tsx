@@ -11,7 +11,7 @@ import {
 } from '../ui/select';
 import { createListCollection, DialogRoot } from '@chakra-ui/react';
 import { DialogTrigger } from '@chakra-ui/react';
-
+import { Tooltip } from '../ui/tooltip';
 import { TrackDialog } from './TrackDialog';
 
 const timeRangeItems = [
@@ -32,7 +32,7 @@ export const TopTracksContent = () => {
   const fetchTopTracks = async (timeRange: string) => {
     try {
       const response = await fetch(
-        `/api/spotify/v1/user/top?time_range=${timeRange}&limit=20&offset=0`
+        `/api/spotify/v1/user/top?time_range=${timeRange}&limit=20&offset=0&type=tracks`
       );
       const data = await response.json();
       setTopTracks(data.items);
@@ -50,7 +50,7 @@ export const TopTracksContent = () => {
 
   return (
     <div className="card bg-gray-700 w-full flex flex-col gap-4">
-      <h2 className="font-bold mb-2">Your Top Tracks</h2>
+      <h2 className="font-bold! text-lg! mb-2">Your Top Tracks</h2>
       <div>
         <SelectRoot
           collection={collection}
@@ -73,29 +73,27 @@ export const TopTracksContent = () => {
       <DialogRoot size="lg" placement="center">
         <div className="grid grid-cols-10 max-md:grid-cols-5">
           {topTracks.map((track) => (
-            <DialogTrigger
-              asChild
-              key={track.id}
-              onClick={() => setSelectedTrack(track)}
-            >
-              <div
+            <Tooltip content={track.name} key={track.id} showArrow>
+              <DialogTrigger
+                asChild
                 key={track.id}
-                title={track.name}
-                className="cursor-pointer hover:opacity-80"
+                onClick={() => setSelectedTrack(track)}
               >
-                <Image
-                  src={track.album.images[0].url}
-                  alt={track.name}
-                  width={100}
-                  height={100}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </DialogTrigger>
+                <div key={track.id} className="cursor-pointer hover:opacity-80">
+                  <Image
+                    src={track.album.images[0].url}
+                    alt={track.name}
+                    width={100}
+                    height={100}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </DialogTrigger>
+            </Tooltip>
           ))}
         </div>
 
-        <TrackDialog selectedTrack={selectedTrack} />
+        {selectedTrack && <TrackDialog selectedTrack={selectedTrack} />}
       </DialogRoot>
     </div>
   );

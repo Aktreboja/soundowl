@@ -1,15 +1,16 @@
 'use client';
-import { SpotifyTrack } from '@/types';
+import { SpotifyArtist, SpotifyTrack } from '@/types';
 import { CloseButton, Dialog, Portal } from '@chakra-ui/react';
 import Image from 'next/image';
-
-import { useEffect } from 'react';
+import { Tooltip } from '../ui/tooltip';
+import { useEffect, useState } from 'react';
 
 export const TrackDialog = ({
   selectedTrack,
 }: {
   selectedTrack: SpotifyTrack | null;
 }) => {
+  const [artists, setArtists] = useState<SpotifyArtist[]>([]);
   useEffect(() => {
     const fetchArtists = async () => {
       const response = await fetch(
@@ -18,7 +19,7 @@ export const TrackDialog = ({
           .join(',')}`
       );
       const data = await response.json();
-      console.log(data);
+      setArtists(data.artists);
     };
     fetchArtists();
   }, [selectedTrack]);
@@ -45,16 +46,30 @@ export const TrackDialog = ({
             </div>
           </Dialog.Header>
           <Dialog.Body>
-            <div>
-              <h3>Artists</h3>
+            <div className="flex flex-col gap-2">
+              <h3 className="text-lg! font-bold!">Artists</h3>
+              <div className="flex gap-4">
+                {artists.length > 0 &&
+                  artists.map((artist) => (
+                    <div
+                      key={artist.id}
+                      className="cursor-pointer hover:opacity-80"
+                    >
+                      <Tooltip content={artist.name} showArrow>
+                        <Image
+                          src={artist.images[0].url}
+                          alt={artist.name}
+                          width={50}
+                          height={50}
+                          className="rounded-full w-16 h-16"
+                        />
+                      </Tooltip>
+                    </div>
+                  ))}
+              </div>
             </div>
           </Dialog.Body>
-          {/* <Dialog.Footer>
-            <Dialog.ActionTrigger asChild>
-              <Button variant="outline">Cancel</Button>
-            </Dialog.ActionTrigger>
-            <Button>Save</Button>
-          </Dialog.Footer> */}
+
           <Dialog.CloseTrigger asChild>
             <CloseButton size="sm" />
           </Dialog.CloseTrigger>
