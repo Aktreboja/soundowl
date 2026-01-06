@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Box, Dialog, Portal, CloseButton } from '@chakra-ui/react';
 import type { SpotifyProfile } from '@/types';
+import { ColorModeButton } from '../ui/color-mode';
 
 export const Navbar = () => {
   const [profile, setProfile] = useState<SpotifyProfile | null>(null);
@@ -42,6 +43,7 @@ export const Navbar = () => {
       className="px-6 py-4 border-b border-gray-200 flex items-center justify-between"
     >
       <p className="text-2xl font-bold tracking-tight">SoundOwl</p>
+      <ColorModeButton />
       {profile && profile.images && profile.images.length > 0 && (
         <Dialog.Root open={isOpen} onOpenChange={(e) => setIsOpen(e.open)}>
           <Dialog.Trigger asChild>
@@ -62,7 +64,10 @@ export const Navbar = () => {
           <Portal>
             <Dialog.Backdrop className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
             <Dialog.Positioner className="fixed inset-0 flex items-center justify-center p-4">
-              <Dialog.Content className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+              <Dialog.Content
+                bg={{ base: 'white', _dark: 'gray.900' }}
+                className="rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+              >
                 {/* Header with profile image */}
                 <div className="relative bg-linear-to-br from-emerald-500 to-teal-600 p-6 pb-16">
                   <Dialog.CloseTrigger asChild>
@@ -87,42 +92,73 @@ export const Navbar = () => {
                 </div>
 
                 {/* Profile info */}
-                <div className="px-6 pt-4 pb-6 text-center">
-                  <Dialog.Title className="text-xl font-bold text-gray-900 dark:text-white">
+                <Box className="px-6 pt-4 pb-6 text-center">
+                  <Dialog.Title
+                    className="text-xl font-bold"
+                    color={{ base: 'gray.900', _dark: 'white' }}
+                  >
                     {profile.display_name || 'Spotify User'}
                   </Dialog.Title>
 
                   {profile.email && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    <Box
+                      as="p"
+                      className="text-sm mt-1"
+                      color={{ base: 'gray.600', _dark: 'gray.400' }}
+                    >
                       {profile.email}
-                    </p>
+                    </Box>
                   )}
 
                   {/* Metadata grid */}
                   <div className="mt-6 grid grid-cols-3 gap-4">
                     <div className="text-center">
-                      <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                      <Box
+                        as="p"
+                        className="text-lg font-semibold"
+                        color={{ base: 'gray.900', _dark: 'white' }}
+                      >
                         {profile.followers?.total?.toLocaleString() || 0}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                      </Box>
+                      <Box
+                        as="p"
+                        className="text-xs uppercase tracking-wide"
+                        color={{ base: 'gray.500', _dark: 'gray.400' }}
+                      >
                         Followers
-                      </p>
+                      </Box>
                     </div>
                     <div className="text-center">
-                      <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                      <Box
+                        as="p"
+                        className="text-lg font-semibold"
+                        color={{ base: 'gray.900', _dark: 'white' }}
+                      >
                         {profile.country || 'N/A'}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                      </Box>
+                      <Box
+                        as="p"
+                        className="text-xs uppercase tracking-wide"
+                        color={{ base: 'gray.500', _dark: 'gray.400' }}
+                      >
                         Country
-                      </p>
+                      </Box>
                     </div>
                     <div className="text-center">
-                      <p className="text-lg font-semibold text-gray-900 dark:text-white capitalize">
+                      <Box
+                        as="p"
+                        className="text-lg font-semibold capitalize"
+                        color={{ base: 'gray.900', _dark: 'white' }}
+                      >
                         {profile.product || 'N/A'}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                      </Box>
+                      <Box
+                        as="p"
+                        className="text-xs uppercase tracking-wide"
+                        color={{ base: 'gray.500', _dark: 'gray.400' }}
+                      >
                         Plan
-                      </p>
+                      </Box>
                     </div>
                   </div>
 
@@ -146,15 +182,19 @@ export const Navbar = () => {
                   )}
 
                   {/* Logout button */}
-                  <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <Box
+                    className="mt-6 pt-6"
+                    borderTopWidth="1px"
+                    borderColor={{ base: 'gray.200', _dark: 'gray.700' }}
+                  >
                     <button
                       onClick={handleLogout}
                       className="w-full px-4 py-2.5 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors duration-200"
                     >
-                      Disconnect Spotify
+                      Log out
                     </button>
-                  </div>
-                </div>
+                  </Box>
+                </Box>
               </Dialog.Content>
             </Dialog.Positioner>
           </Portal>

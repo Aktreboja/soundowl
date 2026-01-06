@@ -75,16 +75,6 @@ export default function Dashboard() {
     window.location.href = '/api/spotify/auth';
   };
 
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/spotify/logout', { method: 'POST' });
-      setProfile(null);
-      setError(null);
-    } catch (err) {
-      console.error('Logout error:', err);
-    }
-  };
-
   if (loading) {
     return (
       <div className="app-container">
@@ -114,25 +104,19 @@ export default function Dashboard() {
   // If profile is found, display user information
   if (profile) {
     return (
-      <div className="app-container">
+      <Box className="app-container" bg={{ base: 'white', _dark: 'gray.900' }}>
         <div className="w-4/5 max-lg:w-full">
-          <h1 className="text-2xl font-bold text-center">
+          <h1 className="text-2xl font-bold text-center my-4">
             Welcome back, {profile.display_name}
           </h1>
-          <div className="flex justify-end mb-2">
-            <ColorModeButton />
-          </div>
           <div className="logged-in-section">
             <div className="flex gap-4 max-lg:flex-col">
               <TopTracksContent />
               <TopArtistsContent />
             </div>
-            <button onClick={handleLogout} className="button logout">
-              Disconnect Spotify
-            </button>
           </div>
         </div>
-      </div>
+      </Box>
     );
   }
 
