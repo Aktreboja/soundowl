@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(
       `${
         process.env.AUTH0_BASE_URL || 'http://localhost:3000'
-      }/dashboard?error=${encodeURIComponent(error)}`
+      }/?error=${encodeURIComponent(error)}`
     );
   }
 
@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(
       `${
         process.env.AUTH0_BASE_URL || 'http://localhost:3000'
-      }/dashboard?error=missing_code_or_state`
+      }/?error=missing_code_or_state`
     );
   }
 
@@ -32,7 +32,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(
       `${
         process.env.AUTH0_BASE_URL || 'http://localhost:3000'
-      }/dashboard?error=state_mismatch`
+      }/?error=state_mismatch`
     );
   }
 
@@ -40,7 +40,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(
       `${
         process.env.AUTH0_BASE_URL || 'http://localhost:3000'
-      }/dashboard?error=missing_code_verifier`
+      }/?error=missing_code_verifier`
     );
   }
 
@@ -59,7 +59,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(
       `${
         process.env.AUTH0_BASE_URL || 'http://localhost:3000'
-      }/dashboard?error=spotify_not_configured`
+      }/?error=spotify_not_configured`
     );
   }
 
@@ -92,7 +92,7 @@ export async function GET(request: Request) {
       return NextResponse.redirect(
         `${
           process.env.AUTH0_BASE_URL || 'http://localhost:3000'
-        }/dashboard?error=${errorMessage}`
+        }/?error=${errorMessage}`
       );
     }
 
@@ -117,14 +117,14 @@ export async function GET(request: Request) {
 
     // Redirect to dashboard
     return NextResponse.redirect(
-      `${process.env.AUTH0_BASE_URL || 'http://localhost:3000'}/dashboard`
+      `${process.env.AUTH0_BASE_URL || 'http://localhost:3000'}/`
     );
   } catch (error) {
     console.error('Callback error:', error);
     return NextResponse.redirect(
       `${
         process.env.AUTH0_BASE_URL || 'http://localhost:3000'
-      }/dashboard?error=callback_error`
+      }/?error=callback_error`
     );
   }
 }

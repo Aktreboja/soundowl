@@ -1,39 +1,135 @@
-import { auth0 } from '../lib/auth0';
-import LoginButton from '../components/LoginButton';
-import LogoutButton from '../components/LogoutButton';
-import Profile from '../components/Profile';
+'use client';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import TopTracksContent from '@/components/Dashboard/TopTracksContent';
+import TopArtistsContent from '@/components/Dashboard/TopArtistsContent';
+import { Box, Button } from '@chakra-ui/react';
 
-export default async function Home() {
-  const session = await auth0.getSession();
-  const user = session?.user;
+interface SpotifyProfile {
+  id: string;
+  display_name: string;
+  email: string;
+  country: string;
+  followers: {
+    total: number;
+  };
+  images: Array<{
+    url: string;
+  }>;
+  product: string;
+  external_urls: {
+    spotify: string;
+  };
+}
 
-  return (
-    <div className="app-container">
-      <div className="main-card-wrapper">
-        <img
-          src="https://cdn.auth0.com/quantum-assets/dist/latest/logos/auth0/auth0-lockup-en-ondark.png"
-          alt="Auth0 Logo"
-          className="auth0-logo"
-        />
-        <h1 className="main-title">Next.js + Auth0</h1>
+export default function Home() {
+  const [profile, setProfile] = useState<SpotifyProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
 
-        <div className="action-card">
-          {user ? (
-            <div className="logged-in-section">
-              <p className="logged-in-message">✅ Successfully logged in!</p>
-              <Profile />
-              <LogoutButton />
-            </div>
-          ) : (
-            <>
-              <p className="action-text">
-                Welcome! Please log in to access your protected content.
-              </p>
-              <LoginButton />
-            </>
-          )}
+  useEffect(() => {
+    // Check for error in URL params
+    const errorParam = searchParams.get('error');
+    if (errorParam) {
+      setError(`Authentication error: ${errorParam}`);
+      setLoading(false);
+      return;
+    }
+
+    // Check if user is authenticated with Spotify
+    fetchProfile();
+  }, [searchParams]);
+
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/spotify/profile');
+
+      if (response.status === 401) {
+        // Not authenticated
+        setProfile(null);
+        setError(null);
+        setLoading(false);
+        return;
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch profile');
+      }
+
+      const data = await response.json();
+      setProfile(data);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+      setProfile(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGetStarted = () => {
+    window.location.href = '/api/spotify/auth';
+  };
+
+  if (loading) {
+    return (
+      <div className="app-container">
+        <div className="loading-state">
+          <p className="loading-text">Loading...</p>
         </div>
       </div>
-    </div>
+    );
+  }
+
+  if (error && !profile) {
+    return (
+      <div className="app-container">
+        <div className="main-card-wrapper">
+          <h1 className="main-title">Welcome</h1>
+          <div className="action-card">
+            <p className="action-text">{error}</p>
+            <button onClick={handleGetStarted} className="button login">
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If profile is found, display user information
+  if (profile) {
+    return (
+      <Box className="app-container" bg={{ base: 'white', _dark: 'gray.900' }}>
+        <div className="w-4/5 max-lg:w-full">
+          <h1 className="text-2xl font-bold text-center my-4">
+            Welcome back, {profile.display_name}
+          </h1>
+          <div className="logged-in-section">
+            <div className="flex gap-4 max-lg:flex-col">
+              <TopTracksContent />
+              <TopArtistsContent />
+            </div>
+          </div>
+        </div>
+      </Box>
+    );
+  }
+
+  return (
+    <Box className="app-container" bg={{ base: 'white', _dark: 'gray.800' }}>
+      <div className="flex-flex-col items-center justify-center ">
+        <h1 className="text-2xl font-bold text-center">Welcome to SoundOwl</h1>
+        <div className="flex flex-col items-center justify-center gap-4">
+          <p>Click on the button below to get started</p>
+          <Button variant="solid" colorScheme="blue" onClick={handleGetStarted}>
+            Get Started
+          </Button>
+        </div>
+      </div>
+    </Box>
   );
 }
