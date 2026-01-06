@@ -4,6 +4,8 @@ import { Provider as ChakraProvider } from '@/components/ui/provider';
 import { StoreProvider } from '@/lib/store/StoreProvider';
 import { AuthenticatedNavbar } from '@/components/Layout/AuthenticatedNavbar';
 import './globals.css';
+import { Suspense } from 'react';
+import { Spinner } from '@chakra-ui/react';
 
 export const metadata: Metadata = {
   title: 'SoundOwl',
@@ -22,7 +24,7 @@ export default function RootLayout({
           <ChakraProvider>
             <Auth0Provider>
               <AuthenticatedNavbar />
-              {children}
+              <Suspense fallback={<Spinner size="lg" />}>{children}</Suspense>
             </Auth0Provider>
           </ChakraProvider>
         </StoreProvider>
