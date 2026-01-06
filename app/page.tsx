@@ -76,7 +76,7 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="w-full h-full flex items-center justify-center">
+      <div className="w-full min-h-screen flex items-center justify-center">
         <Spinner size="lg" />
       </div>
     );
@@ -122,7 +122,7 @@ export default function Home() {
 
   return (
     <Box>
-      <div className="flex-flex-col items-center justify-center">
+      <div className="flex flex-col items-center justify-center w-full min-h-screen ">
         <h1 className="text-2xl font-bold text-center">Welcome to SoundOwl</h1>
         <div className="flex flex-col items-center justify-center gap-4">
           <p>Click on the button below to get started</p>
