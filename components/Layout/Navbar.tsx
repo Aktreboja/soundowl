@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { Box, Dialog, Portal, CloseButton } from '@chakra-ui/react';
+import { Box, Button, Dialog, Portal, CloseButton } from '@chakra-ui/react';
 import type { SpotifyProfile } from '@/types';
 import { ColorModeButton } from '../ui/color-mode';
 
@@ -189,12 +189,13 @@ export const Navbar = () => {
                       borderTopWidth="1px"
                       borderColor={{ base: 'gray.200', _dark: 'gray.700' }}
                     >
-                      <button
+                      <Button
                         onClick={handleLogout}
-                        className="w-full px-4 py-2.5 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors duration-200"
+                        colorPalette="red"
+                        className="w-full"
                       >
                         Log out
-                      </button>
+                      </Button>
                     </Box>
                   </Box>
                 </Dialog.Content>

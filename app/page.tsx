@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import TopTracksContent from '@/components/Dashboard/TopTracksContent';
 import TopArtistsContent from '@/components/Dashboard/TopArtistsContent';
-import { Box, Button } from '@chakra-ui/react';
+import { Box, Button, Spinner } from '@chakra-ui/react';
 
 interface SpotifyProfile {
   id: string;
@@ -76,26 +76,24 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="app-container">
-        <div className="loading-state">
-          <p className="loading-text">Loading...</p>
-        </div>
+      <div className="w-full h-full flex items-center justify-center">
+        <Spinner size="lg" />
       </div>
     );
   }
 
   if (error && !profile) {
     return (
-      <div className="app-container">
-        <div className="main-card-wrapper">
-          <h1 className="main-title">Welcome</h1>
+      <div className="w-full h-full flex items-center justify-center">
+        <Box as="div" className="flex flex-col items-center justify-center">
+          <h1 className="text-2xl font-bold text-center">Welcome</h1>
           <div className="action-card">
             <p className="action-text">{error}</p>
-            <button onClick={handleGetStarted} className="button login">
+            <Button onClick={handleGetStarted} colorPalette="blue">
               Try Again
-            </button>
+            </Button>
           </div>
-        </div>
+        </Box>
       </div>
     );
   }
@@ -103,12 +101,15 @@ export default function Home() {
   // If profile is found, display user information
   if (profile) {
     return (
-      <Box className="app-container" bg={{ base: 'white', _dark: 'gray.900' }}>
+      <Box
+        className="app-container"
+        bg={{ base: 'gray.100', _dark: 'gray.900' }}
+      >
         <div className="w-4/5 max-lg:w-full">
           <h1 className="text-2xl font-bold text-center my-4">
             Welcome back, {profile.display_name}
           </h1>
-          <div className="logged-in-section">
+          <div>
             <div className="flex gap-4 max-lg:flex-col">
               <TopTracksContent />
               <TopArtistsContent />
@@ -120,8 +121,8 @@ export default function Home() {
   }
 
   return (
-    <Box className="app-container" bg={{ base: 'white', _dark: 'gray.800' }}>
-      <div className="flex-flex-col items-center justify-center ">
+    <Box>
+      <div className="flex-flex-col items-center justify-center">
         <h1 className="text-2xl font-bold text-center">Welcome to SoundOwl</h1>
         <div className="flex flex-col items-center justify-center gap-4">
           <p>Click on the button below to get started</p>

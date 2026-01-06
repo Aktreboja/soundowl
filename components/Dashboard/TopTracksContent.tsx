@@ -13,8 +13,7 @@ import {
   createListCollection,
   DialogRoot,
   Card,
-  DialogTrigger,
-  Spinner,
+  Skeleton,
 } from '@chakra-ui/react';
 import { Tooltip } from '../ui/tooltip';
 import { TrackDialog } from './TrackDialog';
@@ -42,7 +41,11 @@ export const TopTracksContent = () => {
     []
   );
 
-  const { data, isLoading, isError } = useGetTopTracksQuery({
+  const {
+    data,
+    isFetching: isFetchingTopTracks,
+    isError,
+  } = useGetTopTracksQuery({
     timeRange,
     limit: 20,
     offset: 0,
@@ -90,9 +93,19 @@ export const TopTracksContent = () => {
         </SelectRoot>
       </div>
 
-      {isLoading && (
-        <div className="flex justify-center items-center py-8">
-          <Spinner size="lg" />
+      {isFetchingTopTracks && (
+        <div className="grid grid-cols-5">
+          {Array.from({ length: 20 }).map((_, index) => (
+            <Skeleton
+              key={index}
+              className="aspect-square w-full rounded-none"
+              style={{
+                animationDelay: `${index * 60}ms`,
+                animationDuration: '1.2s',
+                animationFillMode: 'both',
+              }}
+            />
+          ))}
         </div>
       )}
 
@@ -102,7 +115,7 @@ export const TopTracksContent = () => {
         </div>
       )}
 
-      {!isLoading && !isError && (
+      {!isFetchingTopTracks && !isError && (
         <>
           <div className="grid grid-cols-5">
             {topTracks.map((track) => (

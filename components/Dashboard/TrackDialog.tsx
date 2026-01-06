@@ -1,6 +1,14 @@
 'use client';
 import { SpotifyArtist, SpotifyTrack } from '@/types';
-import { CloseButton, Dialog, Portal, Spinner } from '@chakra-ui/react';
+import {
+  Badge,
+  Button,
+  CloseButton,
+  Dialog,
+  Portal,
+  Progress,
+  Spinner,
+} from '@chakra-ui/react';
 import Image from 'next/image';
 import { Tooltip } from '../ui/tooltip';
 import { useGetMultipleArtistsQuery } from '@/lib/store/spotifyApi';
@@ -12,9 +20,13 @@ export const TrackDialog = ({
   selectedTrack: SpotifyTrack | null;
   onArtistClick?: (artist: SpotifyArtist) => void;
 }) => {
+  console.log('selectedTrack', selectedTrack);
   const artistIds = selectedTrack?.artists.map((artist) => artist.id) ?? [];
-
-  const { data, isLoading, isError } = useGetMultipleArtistsQuery(artistIds, {
+  const {
+    data,
+    isFetching: isFetchingArtists,
+    isError,
+  } = useGetMultipleArtistsQuery(artistIds, {
     skip: artistIds.length === 0,
   });
 
@@ -34,7 +46,7 @@ export const TrackDialog = ({
             />
             <div className="flex flex-col justify-center">
               <Dialog.Title>{selectedTrack?.name}</Dialog.Title>
-              <Dialog.Title className="text-sm! text-gray-300">
+              <Dialog.Title className="text-sm! ">
                 {selectedTrack?.album.name}
               </Dialog.Title>
               <Dialog.Title className="text-sm! text-gray-500">
@@ -44,8 +56,25 @@ export const TrackDialog = ({
           </Dialog.Header>
           <Dialog.Body>
             <div className="flex flex-col gap-2">
+              {selectedTrack?.popularity && (
+                <div className="flex flex-col gap-2">
+                  <h3 className="text-lg! font-bold!">Popularity</h3>
+                  <Progress.Root
+                    value={selectedTrack.popularity}
+                    colorPalette="green"
+                    className="w-full flex gap-4"
+                  >
+                    <Progress.Track flex="1">
+                      <Progress.Range />
+                    </Progress.Track>
+                    <Progress.ValueText>
+                      {selectedTrack.popularity}%
+                    </Progress.ValueText>
+                  </Progress.Root>
+                </div>
+              )}
               <h3 className="text-lg! font-bold!">Artists</h3>
-              {isLoading && (
+              {isFetchingArtists && (
                 <div className="flex justify-center py-4">
                   <Spinner size="md" />
                 </div>
@@ -55,7 +84,7 @@ export const TrackDialog = ({
                   Failed to load artist details.
                 </div>
               )}
-              {!isLoading && !isError && (
+              {!isFetchingArtists && !isError && (
                 <div className="flex gap-4">
                   {artists.length > 0 &&
                     artists.map((artist) => (
@@ -77,9 +106,21 @@ export const TrackDialog = ({
                     ))}
                 </div>
               )}
+              {selectedTrack?.external_urls.spotify && (
+                <div className="mt-2 flex justify-end">
+                  <Button asChild colorPalette="green">
+                    <a
+                      href={selectedTrack.external_urls.spotify}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Open in Spotify →
+                    </a>
+                  </Button>
+                </div>
+              )}
             </div>
           </Dialog.Body>
-
           <Dialog.CloseTrigger asChild>
             <CloseButton size="sm" />
           </Dialog.CloseTrigger>

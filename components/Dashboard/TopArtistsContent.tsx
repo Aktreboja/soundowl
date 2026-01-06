@@ -13,7 +13,7 @@ import {
   Card,
   createListCollection,
   DialogRoot,
-  Spinner,
+  Skeleton,
 } from '@chakra-ui/react';
 import { Tooltip } from '../ui/tooltip';
 import { ArtistDialog } from './ArtistDialog';
@@ -41,7 +41,11 @@ export const TopArtistsContent = () => {
     []
   );
 
-  const { data, isLoading, isError } = useGetTopArtistsQuery({
+  const {
+    data,
+    isFetching: isFetchingTopArtists,
+    isError,
+  } = useGetTopArtistsQuery({
     timeRange,
     limit: 20,
     offset: 0,
@@ -89,9 +93,19 @@ export const TopArtistsContent = () => {
         </SelectRoot>
       </div>
 
-      {isLoading && (
-        <div className="flex justify-center items-center py-8">
-          <Spinner size="lg" />
+      {isFetchingTopArtists && (
+        <div className="grid grid-cols-5">
+          {Array.from({ length: 20 }).map((_, index) => (
+            <Skeleton
+              key={index}
+              className="aspect-square w-full rounded-none"
+              style={{
+                animationDelay: `${index * 60}ms`,
+                animationDuration: '1.2s',
+                animationFillMode: 'both',
+              }}
+            />
+          ))}
         </div>
       )}
 
@@ -101,7 +115,7 @@ export const TopArtistsContent = () => {
         </div>
       )}
 
-      {!isLoading && !isError && (
+      {!isFetchingTopArtists && !isError && (
         <>
           <div className="grid grid-cols-5">
             {topArtists.map((artist) => (
