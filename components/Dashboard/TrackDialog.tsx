@@ -1,5 +1,5 @@
 'use client';
-import { SpotifyTrack } from '@/types';
+import { SpotifyArtist, SpotifyTrack } from '@/types';
 import { CloseButton, Dialog, Portal, Spinner } from '@chakra-ui/react';
 import Image from 'next/image';
 import { Tooltip } from '../ui/tooltip';
@@ -7,8 +7,10 @@ import { useGetMultipleArtistsQuery } from '@/lib/store/spotifyApi';
 
 export const TrackDialog = ({
   selectedTrack,
+  onArtistClick,
 }: {
   selectedTrack: SpotifyTrack | null;
+  onArtistClick?: (artist: SpotifyArtist) => void;
 }) => {
   const artistIds = selectedTrack?.artists.map((artist) => artist.id) ?? [];
 
@@ -60,6 +62,7 @@ export const TrackDialog = ({
                       <div
                         key={artist.id}
                         className="cursor-pointer hover:opacity-80"
+                        onClick={() => onArtistClick?.(artist)}
                       >
                         <Tooltip content={artist.name} showArrow>
                           <Image

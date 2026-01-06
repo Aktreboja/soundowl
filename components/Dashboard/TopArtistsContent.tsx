@@ -1,6 +1,6 @@
 'use client';
 import { useState, useMemo } from 'react';
-import { SpotifyArtist } from '@/types';
+import { SpotifyArtist, SpotifyTrack } from '@/types';
 import Image from 'next/image';
 import {
   SelectContent,
@@ -13,11 +13,11 @@ import {
   Card,
   createListCollection,
   DialogRoot,
-  DialogTrigger,
   Spinner,
 } from '@chakra-ui/react';
 import { Tooltip } from '../ui/tooltip';
 import { ArtistDialog } from './ArtistDialog';
+import { TrackDialog } from './TrackDialog';
 import { useGetTopArtistsQuery } from '@/lib/store/spotifyApi';
 
 const timeRangeItems = [
@@ -33,6 +33,9 @@ export const TopArtistsContent = () => {
   const [selectedArtist, setSelectedArtist] = useState<SpotifyArtist | null>(
     null
   );
+  const [selectedTrack, setSelectedTrack] = useState<SpotifyTrack | null>(null);
+  const [artistDialogOpen, setArtistDialogOpen] = useState(false);
+  const [trackDialogOpen, setTrackDialogOpen] = useState(false);
   const collection = useMemo(
     () => createListCollection({ items: timeRangeItems }),
     []
@@ -45,6 +48,18 @@ export const TopArtistsContent = () => {
   });
 
   const topArtists = data?.items ?? [];
+
+  const handleTrackClick = (track: SpotifyTrack) => {
+    setArtistDialogOpen(false);
+    setSelectedTrack(track);
+    setTrackDialogOpen(true);
+  };
+
+  const handleArtistClick = (artist: SpotifyArtist) => {
+    setTrackDialogOpen(false);
+    setSelectedArtist(artist);
+    setArtistDialogOpen(true);
+  };
 
   return (
     <Card.Root
@@ -87,34 +102,54 @@ export const TopArtistsContent = () => {
       )}
 
       {!isLoading && !isError && (
-        <DialogRoot size="lg" placement="center">
+        <>
           <div className="grid grid-cols-5">
             {topArtists.map((artist) => (
               <Tooltip content={artist.name} key={artist.id} showArrow>
-                <DialogTrigger
-                  asChild
-                  key={artist.id}
-                  onClick={() => setSelectedArtist(artist)}
+                <div
+                  className="cursor-pointer hover:opacity-80 aspect-square overflow-hidden"
+                  onClick={() => handleArtistClick(artist)}
                 >
-                  <div
-                    key={artist.id}
-                    className="cursor-pointer hover:opacity-80 aspect-square overflow-hidden"
-                  >
-                    <Image
-                      src={artist.images[0].url}
-                      alt={artist.name}
-                      width={100}
-                      height={100}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </DialogTrigger>
+                  <Image
+                    src={artist.images[0].url}
+                    alt={artist.name}
+                    width={100}
+                    height={100}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               </Tooltip>
             ))}
           </div>
 
-          {selectedArtist && <ArtistDialog selectedArtist={selectedArtist} />}
-        </DialogRoot>
+          <DialogRoot
+            size="lg"
+            placement="center"
+            open={artistDialogOpen}
+            onOpenChange={(e) => setArtistDialogOpen(e.open)}
+          >
+            {selectedArtist && (
+              <ArtistDialog
+                selectedArtist={selectedArtist}
+                onTrackClick={handleTrackClick}
+              />
+            )}
+          </DialogRoot>
+
+          <DialogRoot
+            size="lg"
+            placement="center"
+            open={trackDialogOpen}
+            onOpenChange={(e) => setTrackDialogOpen(e.open)}
+          >
+            {selectedTrack && (
+              <TrackDialog
+                selectedTrack={selectedTrack}
+                onArtistClick={handleArtistClick}
+              />
+            )}
+          </DialogRoot>
+        </>
       )}
     </Card.Root>
   );
