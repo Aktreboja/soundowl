@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { SpotifyArtist } from '@/types';
 import Image from 'next/image';
 import {
@@ -14,8 +14,11 @@ import {
   createListCollection,
   DialogRoot,
   DialogTrigger,
+  Spinner,
 } from '@chakra-ui/react';
 import { Tooltip } from '../ui/tooltip';
+import { ArtistDialog } from './ArtistDialog';
+import { useGetTopArtistsQuery } from '@/lib/store/spotifyApi';
 
 const timeRangeItems = [
   { value: 'short_term', label: 'Last Week' },
@@ -23,9 +26,10 @@ const timeRangeItems = [
   { value: 'long_term', label: 'All Time' },
 ];
 
+type TimeRange = 'short_term' | 'medium_term' | 'long_term';
+
 export const TopArtistsContent = () => {
-  const [topArtists, setTopArtists] = useState<SpotifyArtist[]>([]);
-  const [timeRange, setTimeRange] = useState<string>('short_term');
+  const [timeRange, setTimeRange] = useState<TimeRange>('short_term');
   const [selectedArtist, setSelectedArtist] = useState<SpotifyArtist | null>(
     null
   );
@@ -34,24 +38,13 @@ export const TopArtistsContent = () => {
     []
   );
 
-  const fetchTopArtists = async (timeRange: string) => {
-    try {
-      const response = await fetch(
-        `/api/spotify/v1/user/top?time_range=${timeRange}&limit=20&offset=0&type=artists`
-      );
-      const data = await response.json();
-      setTopArtists(data.items);
-    } catch (error) {
-      console.error('Error fetching top artists:', error);
-    }
-  };
+  const { data, isLoading, isError } = useGetTopArtistsQuery({
+    timeRange,
+    limit: 20,
+    offset: 0,
+  });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      await fetchTopArtists(timeRange);
-    };
-    fetchData();
-  }, [timeRange]);
+  const topArtists = data?.items ?? [];
 
   return (
     <Card.Root
@@ -66,7 +59,7 @@ export const TopArtistsContent = () => {
           size="sm"
           variant="subtle"
           defaultValue={[timeRange]}
-          onValueChange={(value) => setTimeRange(value.value[0])}
+          onValueChange={(value) => setTimeRange(value.value[0] as TimeRange)}
         >
           <SelectTrigger>
             <SelectValueText />
@@ -80,34 +73,49 @@ export const TopArtistsContent = () => {
           </SelectContent>
         </SelectRoot>
       </div>
-      <DialogRoot size="lg" placement="center">
-        <div className="grid grid-cols-5">
-          {topArtists.map((artist) => (
-            <Tooltip content={artist.name} key={artist.id} showArrow>
-              <DialogTrigger
-                asChild
-                key={artist.id}
-                onClick={() => setSelectedArtist(artist)}
-              >
-                <div
-                  key={artist.id}
-                  className="cursor-pointer hover:opacity-80 aspect-square overflow-hidden"
-                >
-                  <Image
-                    src={artist.images[0].url}
-                    alt={artist.name}
-                    width={100}
-                    height={100}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </DialogTrigger>
-            </Tooltip>
-          ))}
-        </div>
 
-        {/* {selectedArtist && <ArtistDialog selectedArtist={selectedArtist} />} */}
-      </DialogRoot>
+      {isLoading && (
+        <div className="flex justify-center items-center py-8">
+          <Spinner size="lg" />
+        </div>
+      )}
+
+      {isError && (
+        <div className="text-red-500 text-center py-4">
+          Failed to load top artists. Please try again.
+        </div>
+      )}
+
+      {!isLoading && !isError && (
+        <DialogRoot size="lg" placement="center">
+          <div className="grid grid-cols-5">
+            {topArtists.map((artist) => (
+              <Tooltip content={artist.name} key={artist.id} showArrow>
+                <DialogTrigger
+                  asChild
+                  key={artist.id}
+                  onClick={() => setSelectedArtist(artist)}
+                >
+                  <div
+                    key={artist.id}
+                    className="cursor-pointer hover:opacity-80 aspect-square overflow-hidden"
+                  >
+                    <Image
+                      src={artist.images[0].url}
+                      alt={artist.name}
+                      width={100}
+                      height={100}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </DialogTrigger>
+              </Tooltip>
+            ))}
+          </div>
+
+          {selectedArtist && <ArtistDialog selectedArtist={selectedArtist} />}
+        </DialogRoot>
+      )}
     </Card.Root>
   );
 };

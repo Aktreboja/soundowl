@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { SpotifyTrack } from '@/types';
 import Image from 'next/image';
 import {
@@ -14,9 +14,11 @@ import {
   DialogRoot,
   Card,
   DialogTrigger,
+  Spinner,
 } from '@chakra-ui/react';
 import { Tooltip } from '../ui/tooltip';
 import { TrackDialog } from './TrackDialog';
+import { useGetTopTracksQuery } from '@/lib/store/spotifyApi';
 
 const timeRangeItems = [
   { value: 'short_term', label: 'Last Week' },
@@ -24,33 +26,23 @@ const timeRangeItems = [
   { value: 'long_term', label: 'All Time' },
 ];
 
+type TimeRange = 'short_term' | 'medium_term' | 'long_term';
+
 export const TopTracksContent = () => {
-  const [topTracks, setTopTracks] = useState<SpotifyTrack[]>([]);
-  const [timeRange, setTimeRange] = useState<string>('short_term');
+  const [timeRange, setTimeRange] = useState<TimeRange>('short_term');
   const [selectedTrack, setSelectedTrack] = useState<SpotifyTrack | null>(null);
   const collection = useMemo(
     () => createListCollection({ items: timeRangeItems }),
     []
   );
 
-  const fetchTopTracks = async (timeRange: string) => {
-    try {
-      const response = await fetch(
-        `/api/spotify/v1/user/top?time_range=${timeRange}&limit=20&offset=0&type=tracks`
-      );
-      const data = await response.json();
-      setTopTracks(data.items);
-    } catch (error) {
-      console.error('Error fetching top tracks:', error);
-    }
-  };
+  const { data, isLoading, isError } = useGetTopTracksQuery({
+    timeRange,
+    limit: 20,
+    offset: 0,
+  });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      await fetchTopTracks(timeRange);
-    };
-    fetchData();
-  }, [timeRange]);
+  const topTracks = data?.items ?? [];
 
   return (
     <Card.Root
@@ -65,7 +57,7 @@ export const TopTracksContent = () => {
           size="sm"
           variant="subtle"
           defaultValue={[timeRange]}
-          onValueChange={(value) => setTimeRange(value.value[0])}
+          onValueChange={(value) => setTimeRange(value.value[0] as TimeRange)}
         >
           <SelectTrigger>
             <SelectValueText />
@@ -79,31 +71,49 @@ export const TopTracksContent = () => {
           </SelectContent>
         </SelectRoot>
       </div>
-      <DialogRoot size="lg" placement="center">
-        <div className="grid grid-cols-5">
-          {topTracks.map((track) => (
-            <Tooltip content={track.name} key={track.id} showArrow>
-              <DialogTrigger
-                asChild
-                key={track.id}
-                onClick={() => setSelectedTrack(track)}
-              >
-                <div key={track.id} className="cursor-pointer hover:opacity-80">
-                  <Image
-                    src={track.album.images[0].url}
-                    alt={track.name}
-                    width={100}
-                    height={100}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </DialogTrigger>
-            </Tooltip>
-          ))}
-        </div>
 
-        {selectedTrack && <TrackDialog selectedTrack={selectedTrack} />}
-      </DialogRoot>
+      {isLoading && (
+        <div className="flex justify-center items-center py-8">
+          <Spinner size="lg" />
+        </div>
+      )}
+
+      {isError && (
+        <div className="text-red-500 text-center py-4">
+          Failed to load top tracks. Please try again.
+        </div>
+      )}
+
+      {!isLoading && !isError && (
+        <DialogRoot size="lg" placement="center">
+          <div className="grid grid-cols-5">
+            {topTracks.map((track) => (
+              <Tooltip content={track.name} key={track.id} showArrow>
+                <DialogTrigger
+                  asChild
+                  key={track.id}
+                  onClick={() => setSelectedTrack(track)}
+                >
+                  <div
+                    key={track.id}
+                    className="cursor-pointer hover:opacity-80"
+                  >
+                    <Image
+                      src={track.album.images[0].url}
+                      alt={track.name}
+                      width={100}
+                      height={100}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </DialogTrigger>
+              </Tooltip>
+            ))}
+          </div>
+
+          {selectedTrack && <TrackDialog selectedTrack={selectedTrack} />}
+        </DialogRoot>
+      )}
     </Card.Root>
   );
 };

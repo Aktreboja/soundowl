@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { Auth0Provider } from '@auth0/nextjs-auth0/client';
 import { Provider as ChakraProvider } from '@/components/ui/provider';
-import { Navbar } from '@/components/Layout/Navbar';
+import { StoreProvider } from '@/lib/store/StoreProvider';
+import { AuthenticatedNavbar } from '@/components/Layout/AuthenticatedNavbar';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -17,12 +18,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ChakraProvider>
-          <Auth0Provider>
-            <Navbar />
-            {children}
-          </Auth0Provider>
-        </ChakraProvider>
+        <StoreProvider>
+          <ChakraProvider>
+            <Auth0Provider>
+              <AuthenticatedNavbar />
+              {children}
+            </Auth0Provider>
+          </ChakraProvider>
+        </StoreProvider>
       </body>
     </html>
   );
