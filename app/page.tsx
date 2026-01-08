@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import NewReleasesContent from '@/components/Dashboard/NewReleasesContent';
 import TopTracksContent from '@/components/Dashboard/TopTracksContent';
 import TopArtistsContent from '@/components/Dashboard/TopArtistsContent';
 import { Box, Button, Spinner } from '@chakra-ui/react';
@@ -105,11 +106,12 @@ export default function Home() {
         className="app-container"
         bg={{ base: 'gray.100', _dark: 'gray.900' }}
       >
-        <div className="w-4/5 max-lg:w-full">
+        <div className="w-4/5 max-lg:w-full max-w-[1420px]">
           <h1 className="text-2xl font-bold text-center my-4">
             Welcome back, {profile.display_name}
           </h1>
-          <div>
+          <div className="flex gap-4 flex-col">
+            <NewReleasesContent />
             <div className="flex gap-4 max-lg:flex-col">
               <TopTracksContent />
               <TopArtistsContent />

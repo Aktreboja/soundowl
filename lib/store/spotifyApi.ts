@@ -104,6 +104,19 @@ interface TopItemsParams {
   offset?: number;
 }
 
+interface AlbumResponseMetadata {
+  href: string;
+  limit: number;
+  next: string | null;
+  previous: string | null;
+  total: number;
+  items: SpotifyAlbum[];
+}
+
+interface NewReleasesResponse {
+  albums: AlbumResponseMetadata;
+}
+
 export const spotifyApi = createApi({
   reducerPath: 'spotifyApi',
   baseQuery: fetchBaseQuery({ baseUrl: '/api/spotify' }),
@@ -116,6 +129,7 @@ export const spotifyApi = createApi({
     'Artists',
     'Album',
     'AlbumTracks',
+    'NewReleases',
   ],
   endpoints: (builder) => ({
     // Auth status endpoint
@@ -141,7 +155,7 @@ export const spotifyApi = createApi({
       ],
     }),
 
-    // Convenience: Get top artists
+    // Get top artists
     getTopArtists: builder.query<
       TopItemsResponse<SpotifyArtist>,
       Omit<TopItemsParams, 'type'>
@@ -153,7 +167,7 @@ export const spotifyApi = createApi({
       ],
     }),
 
-    // Convenience: Get top tracks
+    // Get top tracks
     getTopTracks: builder.query<
       TopItemsResponse<SpotifyTrack>,
       Omit<TopItemsParams, 'type'>
@@ -209,6 +223,12 @@ export const spotifyApi = createApi({
       query: (albumId) => `/v1/albums/${albumId}/tracks`,
       providesTags: (result, error, id) => [{ type: 'AlbumTracks', id }],
     }),
+
+    // Get new releases
+    getNewReleases: builder.query<NewReleasesResponse, void>({
+      query: () => '/v1/browse/new-releases',
+      providesTags: ['NewReleases'],
+    }),
   }),
 });
 
@@ -225,4 +245,5 @@ export const {
   useGetMultipleArtistsQuery,
   useGetAlbumQuery,
   useGetAlbumTracksQuery,
+  useGetNewReleasesQuery,
 } = spotifyApi;
