@@ -1,5 +1,5 @@
 'use client';
-import { SpotifyArtist, SpotifyTrack } from '@/types';
+import { SpotifyAlbum, SpotifyArtist, SpotifyTrack } from '@/types';
 import {
   Badge,
   Button,
@@ -19,9 +19,11 @@ import {
 export const ArtistDialog = ({
   selectedArtist,
   onTrackClick,
+  onAlbumClick,
 }: {
   selectedArtist: SpotifyArtist | null;
   onTrackClick?: (track: SpotifyTrack) => void;
+  onAlbumClick?: (album: SpotifyAlbum) => void;
 }) => {
   const artistId = selectedArtist?.id ?? '';
 
@@ -145,6 +147,7 @@ export const ArtistDialog = ({
                           <div
                             key={album.id}
                             className="cursor-pointer hover:opacity-80"
+                            onClick={() => onAlbumClick?.(album)}
                           >
                             <Image
                               src={album.images[0].url}

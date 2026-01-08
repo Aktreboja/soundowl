@@ -44,6 +44,54 @@ interface MultipleArtistsResponse {
   artists: SpotifyArtist[];
 }
 
+// Extended album with full details
+export interface AlbumDetails extends SpotifyAlbum {
+  genres: string[];
+  label: string;
+  popularity: number;
+  copyrights: Array<{
+    text: string;
+    type: string;
+  }>;
+  tracks: {
+    items: SimplifiedTrack[];
+    total: number;
+    limit: number;
+    offset: number;
+    href: string;
+    next: string | null;
+    previous: string | null;
+  };
+}
+
+// Simplified track (from album tracks endpoint)
+export interface SimplifiedTrack {
+  artists: SpotifyArtist[];
+  available_markets: string[];
+  disc_number: number;
+  duration_ms: number;
+  explicit: boolean;
+  external_urls: { spotify: string };
+  href: string;
+  id: string;
+  is_local: boolean;
+  name: string;
+  preview_url: string | null;
+  track_number: number;
+  type: 'track';
+  uri: string;
+}
+
+interface AlbumTracksResponse {
+  items: SimplifiedTrack[];
+  total: number;
+  limit: number;
+  offset: number;
+  href: string;
+  next: string | null;
+  previous: string | null;
+}
+
 interface AuthStatusResponse {
   authenticated: boolean;
 }
@@ -59,7 +107,16 @@ interface TopItemsParams {
 export const spotifyApi = createApi({
   reducerPath: 'spotifyApi',
   baseQuery: fetchBaseQuery({ baseUrl: '/api/spotify' }),
-  tagTypes: ['Profile', 'TopItems', 'Artist', 'Albums', 'TopTracks', 'Artists'],
+  tagTypes: [
+    'Profile',
+    'TopItems',
+    'Artist',
+    'Albums',
+    'TopTracks',
+    'Artists',
+    'Album',
+    'AlbumTracks',
+  ],
   endpoints: (builder) => ({
     // Auth status endpoint
     getAuthStatus: builder.query<AuthStatusResponse, void>({
@@ -140,6 +197,18 @@ export const spotifyApi = createApi({
             ]
           : [{ type: 'Artists', id: 'LIST' }],
     }),
+
+    // Get single album details
+    getAlbum: builder.query<AlbumDetails, string>({
+      query: (albumId) => `/v1/album/${albumId}`,
+      providesTags: (result, error, id) => [{ type: 'Album', id }],
+    }),
+
+    // Get album tracks
+    getAlbumTracks: builder.query<AlbumTracksResponse, string>({
+      query: (albumId) => `/v1/albums/${albumId}/tracks`,
+      providesTags: (result, error, id) => [{ type: 'AlbumTracks', id }],
+    }),
   }),
 });
 
@@ -154,4 +223,6 @@ export const {
   useGetArtistTopTracksQuery,
   useGetArtistAlbumsQuery,
   useGetMultipleArtistsQuery,
+  useGetAlbumQuery,
+  useGetAlbumTracksQuery,
 } = spotifyApi;

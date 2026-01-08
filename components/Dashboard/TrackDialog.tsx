@@ -1,7 +1,6 @@
 'use client';
-import { SpotifyArtist, SpotifyTrack } from '@/types';
+import { SpotifyAlbum, SpotifyArtist, SpotifyTrack } from '@/types';
 import {
-  Badge,
   Button,
   CloseButton,
   Dialog,
@@ -16,9 +15,11 @@ import { useGetMultipleArtistsQuery } from '@/lib/store/spotifyApi';
 export const TrackDialog = ({
   selectedTrack,
   onArtistClick,
+  onAlbumClick,
 }: {
   selectedTrack: SpotifyTrack | null;
   onArtistClick?: (artist: SpotifyArtist) => void;
+  onAlbumClick?: (album: SpotifyAlbum) => void;
 }) => {
   console.log('selectedTrack', selectedTrack);
   const artistIds = selectedTrack?.artists.map((artist) => artist.id) ?? [];
@@ -38,15 +39,26 @@ export const TrackDialog = ({
       <Dialog.Positioner>
         <Dialog.Content>
           <Dialog.Header>
-            <Image
-              src={selectedTrack?.album.images[0].url || ''}
-              alt={selectedTrack?.name || ''}
-              width={100}
-              height={100}
-            />
+            <Tooltip content="View Album" showArrow>
+              <Image
+                src={selectedTrack?.album.images[0].url || ''}
+                alt={selectedTrack?.name || ''}
+                width={100}
+                height={100}
+                className="cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() =>
+                  selectedTrack?.album && onAlbumClick?.(selectedTrack.album)
+                }
+              />
+            </Tooltip>
             <div className="flex flex-col justify-center">
               <Dialog.Title>{selectedTrack?.name}</Dialog.Title>
-              <Dialog.Title className="text-sm! ">
+              <Dialog.Title
+                className="text-sm! cursor-pointer hover:underline"
+                onClick={() =>
+                  selectedTrack?.album && onAlbumClick?.(selectedTrack.album)
+                }
+              >
                 {selectedTrack?.album.name}
               </Dialog.Title>
               <Dialog.Title className="text-sm! text-gray-500">

@@ -1,6 +1,6 @@
 'use client';
 import { useState, useMemo } from 'react';
-import { SpotifyArtist, SpotifyTrack } from '@/types';
+import { SpotifyAlbum, SpotifyArtist, SpotifyTrack } from '@/types';
 import Image from 'next/image';
 import {
   SelectContent,
@@ -18,6 +18,7 @@ import {
 import { Tooltip } from '../ui/tooltip';
 import { TrackDialog } from './TrackDialog';
 import { ArtistDialog } from './ArtistDialog';
+import { AlbumDialog } from './AlbumDialog';
 import { useGetTopTracksQuery } from '@/lib/store/spotifyApi';
 
 const timeRangeItems = [
@@ -34,8 +35,10 @@ export const TopTracksContent = () => {
   const [selectedArtist, setSelectedArtist] = useState<SpotifyArtist | null>(
     null
   );
+  const [selectedAlbum, setSelectedAlbum] = useState<SpotifyAlbum | null>(null);
   const [trackDialogOpen, setTrackDialogOpen] = useState(false);
   const [artistDialogOpen, setArtistDialogOpen] = useState(false);
+  const [albumDialogOpen, setAlbumDialogOpen] = useState(false);
   const collection = useMemo(
     () => createListCollection({ items: timeRangeItems }),
     []
@@ -55,14 +58,23 @@ export const TopTracksContent = () => {
 
   const handleArtistClick = (artist: SpotifyArtist) => {
     setTrackDialogOpen(false);
+    setAlbumDialogOpen(false);
     setSelectedArtist(artist);
     setArtistDialogOpen(true);
   };
 
   const handleTrackClick = (track: SpotifyTrack) => {
     setArtistDialogOpen(false);
+    setAlbumDialogOpen(false);
     setSelectedTrack(track);
     setTrackDialogOpen(true);
+  };
+
+  const handleAlbumClick = (album: SpotifyAlbum) => {
+    setArtistDialogOpen(false);
+    setTrackDialogOpen(false);
+    setSelectedAlbum(album);
+    setAlbumDialogOpen(true);
   };
 
   return (
@@ -146,6 +158,7 @@ export const TopTracksContent = () => {
               <TrackDialog
                 selectedTrack={selectedTrack}
                 onArtistClick={handleArtistClick}
+                onAlbumClick={handleAlbumClick}
               />
             )}
           </DialogRoot>
@@ -159,6 +172,22 @@ export const TopTracksContent = () => {
             {selectedArtist && (
               <ArtistDialog
                 selectedArtist={selectedArtist}
+                onTrackClick={handleTrackClick}
+                onAlbumClick={handleAlbumClick}
+              />
+            )}
+          </DialogRoot>
+
+          <DialogRoot
+            size="lg"
+            placement="center"
+            open={albumDialogOpen}
+            onOpenChange={(e) => setAlbumDialogOpen(e.open)}
+          >
+            {selectedAlbum && (
+              <AlbumDialog
+                selectedAlbum={selectedAlbum}
+                onArtistClick={handleArtistClick}
                 onTrackClick={handleTrackClick}
               />
             )}
