@@ -1,5 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { connectToDatabase } from '@/lib/mongodb';
+import { User } from '@/types/User';
 
 export async function refreshAccessToken(
   refreshToken: string
@@ -80,6 +82,7 @@ export async function ensureSpotifyAccessToken(): Promise<
   { success: true; token: string } | { success: false; response: NextResponse }
 > {
   const token = await getSpotifyAccessToken();
+  console.log(token);
 
   if (!token) {
     return {
@@ -167,5 +170,21 @@ export async function fetchWithSpotifyAuth(
       { error: 'Internal server error' },
       { status: 500 }
     );
+  }
+}
+
+/**
+ * Fetches user account from MongoDB based on Auth0 email.
+ * Returns the user account or null if not found.
+ */
+export async function getUserAccount(email: string): Promise<User | null> {
+  try {
+    const db = await connectToDatabase();
+    const collection = db.collection<User>('Users');
+    const user = await collection.findOne({ email });
+    return user;
+  } catch (error) {
+    console.error('Error fetching user account:', error);
+    return null;
   }
 }

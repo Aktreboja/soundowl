@@ -1,13 +1,18 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { spotifyApi } from './spotifyApi';
+import { accountApi } from './accountApi';
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       [spotifyApi.reducerPath]: spotifyApi.reducer,
+      [accountApi.reducerPath]: accountApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat(spotifyApi.middleware),
+      getDefaultMiddleware().concat(
+        spotifyApi.middleware,
+        accountApi.middleware
+      ),
   });
 };
 
