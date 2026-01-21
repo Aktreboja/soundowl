@@ -5,6 +5,7 @@ import NewReleasesContent from '@/components/Dashboard/NewReleasesContent';
 import TopTracksContent from '@/components/Dashboard/TopTracksContent';
 import TopArtistsContent from '@/components/Dashboard/TopArtistsContent';
 import { Box, Button, Spinner } from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
 
 interface SpotifyProfile {
   id: string;
@@ -24,6 +25,8 @@ interface SpotifyProfile {
 }
 
 export default function Home() {
+
+  const router = useRouter();
   const [profile, setProfile] = useState<SpotifyProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -72,8 +75,10 @@ export default function Home() {
   };
 
   const handleGetStarted = () => {
-    window.location.href = '/api/spotify/auth';
+    router.push('/auth/login')
+    // window.location.href = '/api/spotify/auth';
   };
+
 
   if (loading) {
     return (
