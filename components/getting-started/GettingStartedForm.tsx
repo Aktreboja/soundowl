@@ -14,8 +14,10 @@ const formSchema = z.object({
 
 export default function GettingStartedForm({
   user,
+  setCurrentStep,
 }: {
   user: User | undefined;
+  setCurrentStep: (step: number) => void;
 }) {
   const { register, handleSubmit } = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
@@ -42,6 +44,7 @@ export default function GettingStartedForm({
           description: 'You have been registered successfully',
           type: 'success',
         });
+        setCurrentStep(1);
       } else {
         const error = await response.json();
         toaster.create({

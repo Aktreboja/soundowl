@@ -3,7 +3,7 @@ import GettingStartedForm from './GettingStartedForm';
 import ConnectToServices from './ConnectToServices';
 import { User } from '@auth0/nextjs-auth0/types';
 import { User as UserType } from '@/types/User';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useGetAccountQuery } from '@/lib/store/accountApi';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { skipToken } from '@reduxjs/toolkit/query/react';
@@ -20,21 +20,21 @@ export default function GettingStartedContent({
     auth0User?.email ? { email: auth0User.email } : skipToken
   );
 
+  const [currentStep, setCurrentStep] = useState(0);
 
-  // Set current step based on account status
-  const currentStep = useMemo(() => {
+  useEffect(() => {
     if (account) {
-      return 1;
+      setCurrentStep(1);
     } else {
-      return 0;
+      setCurrentStep(0);
     }
-  }, [account, isFetching]);
+  }, [account])
 
   // Render content based on current step
   const renderContent = () => {
     switch (currentStep) {
       case 0:
-        return <GettingStartedForm user={user}  />;
+        return <GettingStartedForm user={user} setCurrentStep={setCurrentStep} />;
       case 1:
         return <ConnectToServices account={account as UserType}/>;
     }
