@@ -3,12 +3,18 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { User } from '@/types/User';
 
+/**
+ * Refreshes the Spotify access token using the refresh token.
+ * Uses client credentials (client_id + client_secret) for secure token refresh.
+ */
 export async function refreshAccessToken(
   refreshToken: string
 ): Promise<string | null> {
   const clientId = process.env.SPOTIFY_CLIENT_ID;
+  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
-  if (!clientId) {
+  if (!clientId || !clientSecret) {
+    console.error('Missing Spotify client credentials for token refresh');
     return null;
   }
 
@@ -17,15 +23,17 @@ export async function refreshAccessToken(
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
       },
       body: new URLSearchParams({
         grant_type: 'refresh_token',
         refresh_token: refreshToken,
-        client_id: clientId,
       }),
     });
 
     if (!response.ok) {
+      const errorData = await response.text();
+      console.error('Token refresh failed:', errorData);
       return null;
     }
 

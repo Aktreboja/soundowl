@@ -1,90 +1,69 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { getSpotifyRedirectUri } from '../../../../lib/spotify-config';
+import { verifyAndConsumeOAuthState } from '../../../../lib/mongodb/oauth-state';
 
+/**
+ * Handles Spotify OAuth callback.
+ * Exchanges authorization code for access/refresh tokens using client credentials.
+ *
+ * State verification is done via MongoDB instead of cookies to avoid
+ * browser cookie issues during OAuth redirect flows.
+ */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
   const state = searchParams.get('state');
   const error = searchParams.get('error');
+  const baseUrl = process.env.AUTH0_BASE_URL || 'http://localhost:3000';
 
   if (error) {
     return NextResponse.redirect(
-      `${
-        process.env.AUTH0_BASE_URL || 'http://localhost:3000'
-      }/?error=${encodeURIComponent(error)}`
+      `${baseUrl}/?error=${encodeURIComponent(error)}`
     );
   }
 
   if (!code || !state) {
-    return NextResponse.redirect(
-      `${
-        process.env.AUTH0_BASE_URL || 'http://localhost:3000'
-      }/?error=missing_code_or_state`
-    );
+    return NextResponse.redirect(`${baseUrl}/?error=missing_code_or_state`);
   }
 
-  // Verify state
+  // Verify state for CSRF protection using MongoDB
+  // This also consumes (deletes) the state to prevent replay attacks
+  const storedState = await verifyAndConsumeOAuthState(state, 'spotify');
+
+  if (!storedState) {
+    console.error('State verification failed - state not found or expired:', {
+      state,
+    });
+    return NextResponse.redirect(`${baseUrl}/?error=state_mismatch`);
+  }
+
   const cookieStore = await cookies();
-  const storedState = cookieStore.get('spotify_auth_state')?.value;
-  const codeVerifier = cookieStore.get('spotify_code_verifier')?.value;
-  const storedRedirectUri = cookieStore.get('spotify_redirect_uri')?.value;
-
-  console.log('storedState', storedState);
-  console.log('state', state);
-  console.log('codeVerifier', codeVerifier);
-  console.log('storedRedirectUri', storedRedirectUri);
-
-  if (!storedState || storedState !== state) {
-    console.error('State mismatch:', storedState, state);
-    return NextResponse.redirect(
-      `${
-        process.env.AUTH0_BASE_URL || 'http://localhost:3000'
-      }/?error=state_mismatch`
-    );
-  }
-
-  if (!codeVerifier) {
-    return NextResponse.redirect(
-      `${
-        process.env.AUTH0_BASE_URL || 'http://localhost:3000'
-      }/?error=missing_code_verifier`
-    );
-  }
-
-  // Use stored redirect URI if available, otherwise construct it (backward compatibility)
-  const redirectUri = storedRedirectUri || getSpotifyRedirectUri();
-
-  // Clear the state, code verifier, and redirect URI cookies
-  cookieStore.delete('spotify_auth_state');
-  cookieStore.delete('spotify_code_verifier');
-  cookieStore.delete('spotify_redirect_uri');
 
   const clientId = process.env.SPOTIFY_CLIENT_ID;
+  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
-  if (!clientId) {
-    return NextResponse.redirect(
-      `${
-        process.env.AUTH0_BASE_URL || 'http://localhost:3000'
-      }/?error=spotify_not_configured`
-    );
+  if (!clientId || !clientSecret) {
+    console.error('Missing Spotify credentials');
+    return NextResponse.redirect(`${baseUrl}/?error=spotify_not_configured`);
   }
 
+  const redirectUri = getSpotifyRedirectUri();
+
   try {
-    // Exchange code for access token using PKCE (no client secret needed!)
+    // Exchange code for access token using client credentials (standard Authorization Code flow)
     const tokenResponse = await fetch(
       'https://accounts.spotify.com/api/token',
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
         },
         body: new URLSearchParams({
           grant_type: 'authorization_code',
           code: code,
           redirect_uri: redirectUri,
-          client_id: clientId,
-          code_verifier: codeVerifier,
         }),
       }
     );
@@ -92,30 +71,13 @@ export async function GET(request: Request) {
     if (!tokenResponse.ok) {
       const errorData = await tokenResponse.text();
       console.error('Token exchange error:', errorData);
-      console.error('Redirect URI used in token exchange:', redirectUri);
-      console.error('Stored redirect URI from cookie:', storedRedirectUri);
-      console.error(
-        'Constructed redirect URI (fallback):',
-        getSpotifyRedirectUri()
-      );
-
-      // Try to parse error for more details
-      let errorDetails = errorData;
-      try {
-        const parsed = JSON.parse(errorData);
-        errorDetails = JSON.stringify(parsed, null, 2);
-        console.error('Parsed error details:', parsed);
-      } catch {
-        // Not JSON, use as-is
-      }
+      console.error('Redirect URI used:', redirectUri);
 
       const errorMessage = errorData.includes('redirect_uri')
         ? 'redirect_uri_mismatch'
         : 'token_exchange_failed';
       return NextResponse.redirect(
-        `${
-          process.env.AUTH0_BASE_URL || 'http://localhost:3000/getting-started'
-        }/?error=${errorMessage}`
+        `${baseUrl}/getting-started?error=${errorMessage}`
       );
     }
 
@@ -138,16 +100,12 @@ export async function GET(request: Request) {
       });
     }
 
-    // Redirect to dashboard
-    return NextResponse.redirect(
-      `${process.env.AUTH0_BASE_URL || 'http://localhost:3000/getting-started'}`
-    );
+    // Redirect to getting-started page
+    return NextResponse.redirect(`${baseUrl}/getting-started`);
   } catch (error) {
     console.error('Callback error:', error);
     return NextResponse.redirect(
-      `${
-        process.env.AUTH0_BASE_URL || 'http://localhost:3000/getting-started'
-      }/?error=callback_error`
+      `${baseUrl}/getting-started?error=callback_error`
     );
   }
 }

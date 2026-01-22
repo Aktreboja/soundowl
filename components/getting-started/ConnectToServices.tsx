@@ -6,21 +6,48 @@ import {
   Icon,
   SimpleGrid,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaSpotify, FaSoundcloud } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
-import { useGetProfileQuery } from '@/lib/store/spotifyApi';
+import { useGetSpotifyProfileQuery } from '@/lib/store/spotifyApi';
+import { useUpdateAccountMutation } from '@/lib/store/accountApi';
+import { User } from '@/types/User';
 
-export default function ConnectToServices() {
+export default function ConnectToServices({ account }: { account: User }) {
   const router = useRouter();
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const { data: profile } = useGetProfileQuery();
-  console.log(profile);
-
+  const { data: profile, isLoading: isLoadingProfile } = useGetSpotifyProfileQuery();
+  const [updateAccount] = useUpdateAccountMutation();
   const handleSpotifyConnect = () => {
-    console.log('Spotify connect');
     router.push('/api/spotify/auth');
   };
+
+  useEffect(() => {
+    if (isLoadingProfile) {
+      return;
+    }
+    else if (profile) {
+      setSelectedServices((prev) => [...prev, 'Spotify']);
+    }
+  }, [isLoadingProfile, profile])
+
+  // On Finish, update the account and push to home page
+  const handleFinish = async () => {
+    const updatedAccount = {
+      ...account,
+      services: selectedServices,
+      hasRegistered: true,
+    }
+    updateAccount(updatedAccount);
+
+    // Push to home page
+    router.push('/')
+  }
+
+  const handleLogout = () => {
+    router.push('/auth/logout');
+  };
+
   const items = [
     {
       label: 'Spotify',
@@ -66,7 +93,7 @@ export default function ConnectToServices() {
           ))}
         </SimpleGrid>
       </CheckboxGroup>
-      <Button>Finish</Button>
+      <Button onClick={handleFinish} disabled={selectedServices.length === 0}>Finish</Button>
     </div>
   );
 }

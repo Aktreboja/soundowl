@@ -138,7 +138,7 @@ export const spotifyApi = createApi({
     }),
 
     // User profile endpoint
-    getProfile: builder.query<SpotifyProfile, void>({
+    getSpotifyProfile: builder.query<SpotifyProfile, void>({
       query: () => '/profile',
       providesTags: ['Profile'],
     }),
@@ -235,7 +235,7 @@ export const spotifyApi = createApi({
 // Export hooks for usage in components
 export const {
   useGetAuthStatusQuery,
-  useGetProfileQuery,
+  useGetSpotifyProfileQuery,
   useGetTopItemsQuery,
   useGetTopArtistsQuery,
   useGetTopTracksQuery,

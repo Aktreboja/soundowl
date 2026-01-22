@@ -12,6 +12,14 @@ export const accountApi = createApi({
       }),
       providesTags: ['Account'],
     }),
+    updateAccount: builder.mutation<User | null, User>({
+      query: (account) => ({
+        url: `/`,
+        method: 'PUT',
+        body: account,
+      }),
+      invalidatesTags: ['Account'],
+    }),
   }),
 });
-export const { useGetAccountQuery } = accountApi;
+export const { useGetAccountQuery, useUpdateAccountMutation } = accountApi;

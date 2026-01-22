@@ -24,12 +24,13 @@ export const Navbar = () => {
     fetchProfile();
   }, []);
 
+  // Logout from Spotify and redirect to Auth0 logout
   const handleLogout = async () => {
     try {
       await fetch('/api/spotify/logout', { method: 'POST' });
       setProfile(null);
       setIsOpen(false);
-      window.location.href = '/';
+      window.location.href = '/auth/logout';
     } catch (err) {
       console.error('Logout error:', err);
     }
