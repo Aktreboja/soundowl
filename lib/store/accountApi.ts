@@ -6,8 +6,10 @@ export const accountApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: '/api/account' }),
   tagTypes: ['Account'],
   endpoints: (builder) => ({
-    getAccount: builder.query<User, void>({
-      query: () => '/',
+    getAccount: builder.query<User | null, { email: string }>({
+      query: ({ email }) => ({
+        url: `/?email=${encodeURIComponent(email)}`,
+      }),
       providesTags: ['Account'],
     }),
   }),

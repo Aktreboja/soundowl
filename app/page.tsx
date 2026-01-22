@@ -1,143 +1,22 @@
-'use client';
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import NewReleasesContent from '@/components/Dashboard/NewReleasesContent';
-import TopTracksContent from '@/components/Dashboard/TopTracksContent';
-import TopArtistsContent from '@/components/Dashboard/TopArtistsContent';
-import { Box, Button, Spinner } from '@chakra-ui/react';
-import { useRouter } from 'next/navigation';
+import { auth0 } from '@/lib/auth0';
+import { redirect } from 'next/navigation';
+import { getUserAccount } from '@/app/utils';
+import HomeContent from '@/components/Home/HomeContent';
 
-interface SpotifyProfile {
-  id: string;
-  display_name: string;
-  email: string;
-  country: string;
-  followers: {
-    total: number;
-  };
-  images: Array<{
-    url: string;
-  }>;
-  product: string;
-  external_urls: {
-    spotify: string;
-  };
-}
+export default async function Home() {
+  const session = await auth0.getSession();
+  const user = session?.user;
 
-export default function Home() {
+  // If user is authenticated, check their account registration status
+  if (user?.email) {
+    const account = await getUserAccount(user.email);
 
-  const router = useRouter();
-  const [profile, setProfile] = useState<SpotifyProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    // Check for error in URL params
-    const errorParam = searchParams.get('error');
-    if (errorParam) {
-      setError(`Authentication error: ${errorParam}`);
-      setLoading(false);
-      return;
+    // If account exists but hasRegistered is false, redirect to getting-started
+    if ((account && !account.hasRegistered) || user) {
+      redirect('/getting-started');
     }
-
-    // Check if user is authenticated with Spotify
-    fetchProfile();
-  }, [searchParams]);
-
-  const fetchProfile = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/spotify/profile');
-
-      if (response.status === 401) {
-        // Not authenticated
-        setProfile(null);
-        setError(null);
-        setLoading(false);
-        return;
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch profile');
-      }
-
-      const data = await response.json();
-      setProfile(data);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      setProfile(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGetStarted = () => {
-    router.push('/auth/login')
-    // window.location.href = '/api/spotify/auth';
-  };
-
-
-  if (loading) {
-    return (
-      <div className="w-full min-h-screen flex items-center justify-center">
-        <Spinner size="lg" />
-      </div>
-    );
   }
 
-  if (error && !profile) {
-    return (
-      <div className="w-full h-full flex items-center justify-center">
-        <Box as="div" className="flex flex-col items-center justify-center">
-          <h1 className="text-2xl font-bold text-center">Welcome</h1>
-          <div className="action-card">
-            <p className="action-text">{error}</p>
-            <Button onClick={handleGetStarted} colorPalette="blue">
-              Try Again
-            </Button>
-          </div>
-        </Box>
-      </div>
-    );
-  }
-
-  // If profile is found, display user information
-  if (profile) {
-    return (
-      <Box
-        className="app-container"
-        bg={{ base: 'gray.100', _dark: 'gray.900' }}
-      >
-        <div className="w-4/5 max-lg:w-full max-w-[1420px]">
-          <h1 className="text-2xl font-bold text-center my-4">
-            Welcome back, {profile.display_name}
-          </h1>
-          <div className="flex gap-4 flex-col">
-            <NewReleasesContent />
-            <div className="flex gap-4 max-lg:flex-col">
-              <TopTracksContent />
-              <TopArtistsContent />
-            </div>
-          </div>
-        </div>
-      </Box>
-    );
-  }
-
-  return (
-    <Box>
-      <div className="flex flex-col items-center justify-center w-full min-h-screen ">
-        <h1 className="text-2xl font-bold text-center">Welcome to SoundOwl</h1>
-        <div className="flex flex-col items-center justify-center gap-4">
-          <p>Click on the button below to get started</p>
-          <Button variant="solid" colorScheme="blue" onClick={handleGetStarted}>
-            Get Started
-          </Button>
-        </div>
-      </div>
-    </Box>
-  );
+  // Render HomeContent (it will handle unauthenticated state, loading, errors, and dashboard)
+  return <HomeContent />;
 }

@@ -1,8 +1,6 @@
 import ProtectedPageLayout from '../../components/Auth/ProtectedPageLayout';
-import { Button, Field, Input, Stack } from '@chakra-ui/react';
 import { auth0 } from '../../lib/auth0';
-import { toaster } from '@/components/ui/toaster';
-import GettingStartedForm from '@/components/Auth/GettingStartedForm';
+import GettingStartedContent from '@/components/getting-started/GettingStartedContent';
 
 export default async function GettingStarted() {
   const session = await auth0.getSession();
@@ -12,8 +10,7 @@ export default async function GettingStarted() {
     <ProtectedPageLayout>
       <div className=" mx-auto min-h-screen flex items-center justify-center flex-col">
         <h1 className="text-2xl font-bold text-center">Getting Started</h1>
-
-        <GettingStartedForm user={user} />
+        <GettingStartedContent user={user} />
       </div>
     </ProtectedPageLayout>
   );

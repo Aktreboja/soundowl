@@ -4,15 +4,12 @@ import {
   generateCodeVerifier,
   generateCodeChallenge,
 } from '../../../../lib/spotify-pkce';
+import { getSpotifyRedirectUri } from '../../../../lib/spotify-config';
 
 // TODO (AR): Modularize logic
 export async function GET() {
   const clientId = process.env.SPOTIFY_CLIENT_ID;
-  const redirectUri =
-    process.env.SPOTIFY_REDIRECT_URI ||
-    `${
-      process.env.AUTH0_BASE_URL || 'http://localhost:3000'
-    }/api/spotify/callback`;
+  const redirectUri = getSpotifyRedirectUri();
 
   if (!clientId) {
     return NextResponse.json(
@@ -30,7 +27,7 @@ export async function GET() {
     Math.random().toString(36).substring(2, 15) +
     Math.random().toString(36).substring(2, 15);
 
-  // Store code verifier and state in cookies for verification
+  // Store code verifier, state, and redirect URI in cookies for verification
   const cookieStore = await cookies();
   cookieStore.set('spotify_code_verifier', codeVerifier, {
     httpOnly: true,
@@ -40,6 +37,14 @@ export async function GET() {
   });
 
   cookieStore.set('spotify_auth_state', state, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 600, // 10 minutes
+  });
+
+  // Store redirect URI to ensure exact match in callback
+  cookieStore.set('spotify_redirect_uri', redirectUri, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',

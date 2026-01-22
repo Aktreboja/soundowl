@@ -2,7 +2,6 @@
 import { User } from '@auth0/nextjs-auth0/types';
 import { Button, Field, Input, Stack } from '@chakra-ui/react';
 import { toaster, Toaster } from '../ui/toaster';
-import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,10 +14,11 @@ const formSchema = z.object({
 
 export default function GettingStartedForm({
   user,
+  stepHandler,
 }: {
   user: User | undefined;
+  stepHandler: (step: number) => void;
 }) {
-  const router = useRouter();
   const { register, handleSubmit } = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
       email: user?.email,
@@ -35,7 +35,7 @@ export default function GettingStartedForm({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, userId: user?.sub }),
       });
 
       if (response.ok) {
@@ -45,12 +45,13 @@ export default function GettingStartedForm({
           type: 'success',
         });
         setTimeout(() => {
-          router.push('/');
+          stepHandler(1);
         }, 1000);
       } else {
+        const error = await response.json();
         toaster.create({
           title: 'Registration Failed',
-          description: 'An error occurred while registering',
+          description: `${error.error}, Please try again`,
           type: 'error',
         });
       }
@@ -74,7 +75,10 @@ export default function GettingStartedForm({
       className="w-1/2 mx-auto max-sm:w-full max-sm:px-4"
     >
       <Toaster />
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="w-full flex flex-col gap-4"
+      >
         <Field.Root>
           <Field.Label>Email</Field.Label>
           <Input type="text" disabled {...register('email')} />
