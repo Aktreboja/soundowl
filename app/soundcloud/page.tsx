@@ -2,9 +2,22 @@
 import { useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Button, Box, Spinner, Stack, Text } from '@chakra-ui/react';
+import {
+  Button,
+  Box,
+  Card,
+  Spinner,
+  Stack,
+  Text,
+  SimpleGrid,
+} from '@chakra-ui/react';
 import { useSoundCloudAuth } from '@/hooks/useSoundCloudAuth';
-import { useGetSoundCloudProfileQuery } from '@/lib/store/soundcloudApi';
+import {
+  useGetSoundCloudLikedTracksQuery,
+  useGetSoundCloudProfileQuery,
+  useGetSoundCloudActivitiesQuery,
+} from '@/lib/store/soundcloudApi';
+import { Tooltip } from '@/components/ui/tooltip';
 
 export default function SoundCloudPage() {
   const router = useRouter();
@@ -18,6 +31,20 @@ export default function SoundCloudPage() {
     skip: !isAuthenticated, // Skip query if not authenticated
   });
 
+  const {
+    data: likedTracks = [],
+    isLoading: likedTracksLoading,
+    error: likedTracksError,
+  } = useGetSoundCloudLikedTracksQuery(undefined, { skip: !isAuthenticated });
+
+  const {
+    data: activities,
+    isLoading: activitiesLoading,
+    error: activitiesError,
+  } = useGetSoundCloudActivitiesQuery(undefined, { skip: !isAuthenticated });
+
+  console.log('Liked Tracks', likedTracks);
+  console.log('Activities', activities);
   const error = useMemo(() => {
     const errorParam = searchParams.get('error');
     return errorParam ? `Authentication error: ${errorParam}` : null;
@@ -89,7 +116,7 @@ export default function SoundCloudPage() {
     }
 
     return (
-      <div className="w-full min-h-screen flex items-center justify-center">
+      <div className="w-full min-h-screen flex flex-col items-center justify-center gap-4">
         <Box
           className="flex flex-col items-center justify-center gap-6 p-8"
           bg={{ base: 'gray.50', _dark: 'gray.800' }}
@@ -179,6 +206,63 @@ export default function SoundCloudPage() {
             </Button>
           </Stack>
         </Box>
+
+        <Card.Root
+          variant="elevated"
+          className="card w-3/4 flex flex-col gap-4"
+        >
+          <Text fontSize="2xl" fontWeight="bold">
+            Liked Tracks
+          </Text>
+          <SimpleGrid columns={10} gap={2}>
+            {likedTracks.map((track) => (
+              <Tooltip content={track.title} key={track.id} showArrow>
+                <div
+                  key={track.id}
+                  className="flex flex-col items-center justify-center cursor-pointer"
+                >
+                  <Image
+                    src={track.artwork_url || ''}
+                    alt={track.title}
+                    width={100}
+                    height={100}
+                  />
+                </div>
+              </Tooltip>
+            ))}
+          </SimpleGrid>
+        </Card.Root>
+
+        {/* Activity feed section */}
+        <Card.Root
+          variant="elevated"
+          className="card w-3/4 flex flex-col gap-4"
+        >
+          <Text fontSize="2xl" fontWeight="bold">
+            Activities
+          </Text>
+          <SimpleGrid columns={10} gap={2}>
+            {activities?.collection.map((activity) => (
+              <Tooltip
+                content={activity.origin.title || ''}
+                key={activity.origin.id}
+                showArrow
+              >
+                <div
+                  key={activity.origin.id}
+                  className="flex flex-col items-center justify-center cursor-pointer"
+                >
+                  <Image
+                    src={activity.origin.artwork_url || ''}
+                    alt={activity.origin.title || ''}
+                    width={100}
+                    height={100}
+                  />
+                </div>
+              </Tooltip>
+            ))}
+          </SimpleGrid>
+        </Card.Root>
       </div>
     );
   }
