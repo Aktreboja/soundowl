@@ -13,12 +13,13 @@ export default async function Home() {
 
   // If user is authenticated, check their account registration status
   if (user?.email) {
+    // Fetch account from mongo
     const account = await getUserAccount(user.email);
 
     // If account exists but hasRegistered is false, redirect to getting-started
-    if (account && !account.hasRegistered) {
+    if (!account) {
       redirect('/getting-started');
-    } else if (account && account.services.length === 0) {
+    } else if (account && !account.hasRegistered) {
       redirect('/getting-started');
     }
   }

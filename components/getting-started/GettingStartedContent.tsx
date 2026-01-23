@@ -3,9 +3,8 @@ import GettingStartedForm from './GettingStartedForm';
 import ConnectToServices from './ConnectToServices';
 import { User } from '@auth0/nextjs-auth0/types';
 import { User as UserType } from '@/types/User';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useGetAccountQuery } from '@/lib/store/accountApi';
-import { useUser } from '@auth0/nextjs-auth0/client';
 import { skipToken } from '@reduxjs/toolkit/query/react';
 import { Spinner } from '@chakra-ui/react';
 
@@ -14,39 +13,39 @@ export default function GettingStartedContent({
 }: {
   user: User | undefined;
 }) {
-  const { user: auth0User } = useUser();
-
+  // Use the user prop directly instead of calling useUser() again
   const { data: account, isFetching } = useGetAccountQuery(
-    auth0User?.email ? { email: auth0User.email } : skipToken
+    user?.email ? { email: user.email } : skipToken
   );
 
-  const [currentStep, setCurrentStep] = useState(0);
+  const [manualStep, setManualStep] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (account) {
-      setCurrentStep(1);
-    } else {
-      setCurrentStep(0);
-    }
-  }, [account])
+  // Derive step from account, but allow manual override
+  const currentStep = useMemo(() => {
+    return manualStep !== null ? manualStep : account ? 1 : 0;
+  }, [account, manualStep]);
 
   // Render content based on current step
   const renderContent = () => {
     switch (currentStep) {
       case 0:
-        return <GettingStartedForm user={user} setCurrentStep={setCurrentStep} />;
+        return (
+          <GettingStartedForm user={user} setCurrentStep={setManualStep} />
+        );
       case 1:
-        return <ConnectToServices account={account as UserType}/>;
+        return <ConnectToServices account={account as UserType} />;
     }
   };
 
   return (
     <div className="flex flex-col items-center justify-center gap-4 w-full mt-4">
-      {
-        isFetching ? <div className="flex items-center justify-center w-full">
+      {isFetching ? (
+        <div className="flex items-center justify-center w-full">
           <Spinner size="lg" />
-        </div> : renderContent()
-      }
+        </div>
+      ) : (
+        renderContent()
+      )}
     </div>
   );
 }

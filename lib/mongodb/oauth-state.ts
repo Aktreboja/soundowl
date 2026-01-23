@@ -15,10 +15,11 @@ import { connectToDatabase } from './index';
 
 interface OAuthState {
   state: string;
-  provider: 'spotify' | 'other';
+  provider: 'spotify' | 'soundcloud' | 'other';
   createdAt: Date;
   expiresAt: Date;
   metadata?: Record<string, unknown>;
+  codeVerifier?: string; // PKCE code verifier for OAuth 2.1 flows
 }
 
 const COLLECTION_NAME = 'oauth_states';
@@ -39,8 +40,9 @@ export function generateState(): string {
  */
 export async function storeOAuthState(
   state: string,
-  provider: 'spotify' | 'other' = 'spotify',
-  metadata?: Record<string, unknown>
+  provider: 'spotify' | 'soundcloud' | 'other' = 'spotify',
+  metadata?: Record<string, unknown>,
+  codeVerifier?: string
 ): Promise<void> {
   const db = await connectToDatabase();
   const collection = db.collection<OAuthState>(COLLECTION_NAME);
@@ -54,6 +56,7 @@ export async function storeOAuthState(
     createdAt: now,
     expiresAt,
     metadata,
+    codeVerifier,
   });
 }
 
@@ -67,7 +70,7 @@ export async function storeOAuthState(
  */
 export async function verifyAndConsumeOAuthState(
   state: string,
-  provider: 'spotify' | 'other' = 'spotify'
+  provider: 'spotify' | 'soundcloud' | 'other' = 'spotify'
 ): Promise<OAuthState | null> {
   const db = await connectToDatabase();
   const collection = db.collection<OAuthState>(COLLECTION_NAME);
@@ -97,8 +100,5 @@ export async function ensureOAuthStateIndexes(): Promise<void> {
   );
 
   // Create index on state + provider for fast lookups
-  await collection.createIndex(
-    { state: 1, provider: 1 },
-    { background: true }
-  );
+  await collection.createIndex({ state: 1, provider: 1 }, { background: true });
 }
