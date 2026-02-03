@@ -1,6 +1,6 @@
 'use client';
 import { useState, useMemo } from 'react';
-import { SpotifyAlbum, SpotifyArtist, SpotifyTrack } from '@/types';
+import { SpotifyAlbum, SpotifyArtist, SpotifyTrack } from '@/types/spotify';
 import Image from 'next/image';
 import {
   SelectContent,

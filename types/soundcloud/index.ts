@@ -62,3 +62,28 @@ export interface SoundCloudTrack {
   secret_uri: string | null;
   is_explicit: boolean | null;
 }
+
+export interface SoundCloudProfile {
+  id: number;
+  permalink: string;
+  username: string;
+  full_name: string;
+  description: string | null;
+  city: string | null;
+  country: string | null;
+  avatar_url: string | null;
+  followers_count: number;
+  followings_count: number;
+  public_favorites_count: number;
+  track_count: number;
+  playlist_count: number;
+  plan: string;
+  website: string | null;
+  website_title: string | null;
+  online: boolean;
+  verified: boolean;
+  kind: string;
+  uri: string;
+  permalink_url: string;
+  avatar_url_template: string | null;
+}

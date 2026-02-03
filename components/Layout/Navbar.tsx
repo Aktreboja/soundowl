@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Box, Button, Dialog, Portal, CloseButton } from '@chakra-ui/react';
-import type { SpotifyProfile } from '@/types';
+import type { SpotifyProfile } from '@/types/spotify';
 import { ColorModeButton } from '../ui/color-mode';
 
 export const Navbar = () => {

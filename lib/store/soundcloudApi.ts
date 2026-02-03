@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { SoundCloudProfile } from '@/types';
+import { SoundCloudProfile } from '@/types/soundcloud';
 import {
   SoundCloudActivity,
   SoundCloudActivityResponse,
@@ -11,13 +11,22 @@ interface AuthStatusResponse {
   authenticated: boolean;
 }
 
+export interface SoundCloudTrackSearchRequest {
+  q: string;
+  ids?: string;
+  urns?: string;
+  limit?: number;
+  linked_partitioning?: boolean;
+}
+
 export const soundcloudApi = createApi({
   reducerPath: 'soundcloudApi',
   baseQuery: fetchBaseQuery({ baseUrl: '/api/soundcloud' }),
   tagTypes: [
-    'SoundcloudProfile',
-    'SoundcloudActivities',
-    'SoundcloudLikesTracks',
+    'SoundCloudProfile',
+    'SoundCloudActivities',
+    'SoundCloudLikesTracks',
+    'SoundCloudSearch',
   ],
   endpoints: (builder) => ({
     // Auth status endpoint
@@ -28,17 +37,36 @@ export const soundcloudApi = createApi({
     // User profile endpoint
     getSoundCloudProfile: builder.query<SoundCloudProfile, void>({
       query: () => '/profile',
-      providesTags: ['SoundcloudProfile'],
+      providesTags: ['SoundCloudProfile'],
     }),
     getSoundCloudLikedTracks: builder.query<SoundCloudTrack[], void>({
       query: () => '/v1/me/likes/tracks',
-      providesTags: ['SoundcloudLikesTracks'],
+      providesTags: ['SoundCloudLikesTracks'],
     }),
 
     // User activities endpoint
     getSoundCloudActivities: builder.query<SoundCloudActivityResponse, void>({
       query: () => '/v1/me/activities/all/own',
-      providesTags: ['SoundcloudActivities'],
+      providesTags: ['SoundCloudActivities'],
+    }),
+    getSoundCloudSearch: builder.query<
+      SoundCloudProfile,
+      SoundCloudTrackSearchRequest
+    >({
+      query: ({ q, ids, limit, linked_partitioning, urns }) => {
+        const params = new URLSearchParams();
+        params.append('q', q);
+
+        // Optional Params if existing
+        if (ids) params.append('ids', ids);
+        if (urns) params.append('urns', urns);
+        if (limit !== undefined) params.append('limit', limit.toString());
+        if (linked_partitioning !== undefined)
+          params.append('linked_partitioning', linked_partitioning.toString());
+
+        return `/v1/search?${params.toString()}`;
+      },
+      providesTags: ['SoundCloudSearch'],
     }),
   }),
 });
@@ -49,4 +77,5 @@ export const {
   useGetSoundCloudProfileQuery,
   useGetSoundCloudLikedTracksQuery,
   useGetSoundCloudActivitiesQuery,
+  useGetSoundCloudSearchQuery,
 } = soundcloudApi;

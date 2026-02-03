@@ -4,7 +4,7 @@ import {
   SpotifyTrack,
   SpotifyAlbum,
   SpotifyProfile,
-} from '@/types';
+} from '@/types/spotify';
 
 // Extended artist with additional details
 export interface ArtistDetails extends SpotifyArtist {

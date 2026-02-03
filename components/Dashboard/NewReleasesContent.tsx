@@ -1,7 +1,7 @@
 'use client';
 import { useGetNewReleasesQuery } from '@/lib/store/spotifyApi';
 import { useState, useEffect } from 'react';
-import { SpotifyAlbum, SpotifyArtist, SpotifyTrack } from '@/types';
+import { SpotifyAlbum, SpotifyArtist, SpotifyTrack } from '@/types/spotify';
 import { Box, Card, Skeleton, DialogRoot } from '@chakra-ui/react';
 import Image from 'next/image';
 import { Tooltip } from '../ui/tooltip';

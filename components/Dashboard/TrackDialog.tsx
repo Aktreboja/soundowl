@@ -1,5 +1,5 @@
 'use client';
-import { SpotifyAlbum, SpotifyArtist, SpotifyTrack } from '@/types';
+import { SpotifyAlbum, SpotifyArtist, SpotifyTrack } from '@/types/spotify';
 import {
   Button,
   CloseButton,
