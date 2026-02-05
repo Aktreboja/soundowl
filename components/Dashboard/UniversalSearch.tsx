@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  CloseButton,
   Image,
   InputGroup,
   Input,
@@ -13,6 +12,7 @@ import {
 import { useGetSoundCloudSearchQuery } from '@/lib/store/soundcloudApi';
 import { useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
+import { SoundCloudTrack } from '@/types/soundcloud';
 
 export default function UniversalSearch() {
   const [searchValue, setSearchValue] = useState('');
@@ -21,10 +21,14 @@ export default function UniversalSearch() {
     setSearchValue(value);
   }, 1000);
 
-  // TODO (ar): Skip here
-  const { data: searchResults } = useGetSoundCloudSearchQuery({
-    q: searchValue,
-  });
+  const { data: searchResults } = useGetSoundCloudSearchQuery(
+    { q: searchValue },
+    { skip: !searchValue.trim() }
+  );
+
+  const tracks = searchResults ?? [];
+
+  console.log('SEARCH RESULTS: ', searchResults);
 
   return (
     <div className="relative w-full">
@@ -36,21 +40,24 @@ export default function UniversalSearch() {
         />
       </InputGroup>
       {searchValue.length > 0 && (
-        <Listbox.Root collection={musicAlbums} className="absolute z-50">
+        <Listbox.Root
+          collection={createListCollection({ items: tracks })}
+          className="absolute z-50"
+        >
           <Listbox.Label>Select Album</Listbox.Label>
           <Listbox.Content>
-            {musicAlbums.items.map((album) => (
+            {tracks.map((track) => (
               <Listbox.Item
-                item={album}
-                key={album.value}
+                item={track}
+                key={track.id}
                 flexDirection="column"
                 alignItems="flex-start"
                 gap="2"
                 position="relative"
               >
                 <Image
-                  src={album.image}
-                  alt={album.title}
+                  src={track.artwork_url || ''}
+                  alt={track.title}
                   bg="bg.subtle"
                   objectFit="cover"
                   aspectRatio="1"
@@ -61,9 +68,9 @@ export default function UniversalSearch() {
                 />
                 <Stack gap="0">
                   <Text fontSize="sm" fontWeight="medium" whiteSpace="nowrap">
-                    {album.title}
+                    {track.title}
                   </Text>
-                  <Text fontSize="xs">{album.artist}</Text>
+                  <Text fontSize="xs">{track.user.username}</Text>
                 </Stack>
                 <Listbox.ItemIndicator
                   position="absolute"
@@ -81,43 +88,3 @@ export default function UniversalSearch() {
     </div>
   );
 }
-
-const musicAlbums = createListCollection({
-  items: [
-    {
-      value: 'euphoric-echoes',
-      title: 'Euphoric Echoes',
-      artist: 'Luna Solstice',
-      image:
-        'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=160&h=160&fit=crop',
-    },
-    {
-      value: 'neon-dreamscape',
-      title: 'Neon Dreamscape',
-      artist: 'Electra Skyline',
-      image:
-        'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=160&h=160&fit=crop',
-    },
-    {
-      value: 'cosmic-serenade',
-      title: 'Cosmic Serenade',
-      artist: "Orion's Symphony",
-      image:
-        'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=160&h=160&fit=crop',
-    },
-    {
-      value: 'melancholy-melodies',
-      title: 'Melancholy Melodies',
-      artist: 'Violet Mistral',
-      image:
-        'https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=160&h=160&fit=crop',
-    },
-    {
-      value: 'rhythmic-illusions',
-      title: 'Rhythmic Illusions',
-      artist: 'Mirage Beats',
-      image:
-        'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=160&h=160&fit=crop',
-    },
-  ],
-});

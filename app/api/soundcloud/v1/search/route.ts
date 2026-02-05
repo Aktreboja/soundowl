@@ -1,22 +1,37 @@
 import { fetchWithSoundCloudAuth } from '@/app/utils';
 import { NextRequest } from 'next/server';
 
-import type { SoundCloudTrackSearchRequest } from '@/lib/store/soundcloudApi';
 export async function GET(request: NextRequest) {
-  const { ids, limit, linked_partitioning, q, urns } = request.nextUrl
-    .searchParams as unknown as SoundCloudTrackSearchRequest;
+  const searchParams = request.nextUrl.searchParams;
+  const q = searchParams.get('q');
+
+  if (q == null || !q.trim()) {
+    return Response.json([], { status: 200 });
+  }
+
+  const ids = searchParams.get('ids');
+  const urns = searchParams.get('urns');
+  const limit = searchParams.get('limit');
+  const linkedPartitioning = searchParams.get('linked_partitioning');
 
   const params = new URLSearchParams();
-
-  // Optional Params if existing
   if (ids) params.append('ids', ids);
   if (urns) params.append('urns', urns);
-  if (limit !== undefined) params.append('limit', limit.toString());
-  if (linked_partitioning !== undefined)
-    params.append('linked_partitioning', linked_partitioning.toString());
+  if (limit) params.append('limit', limit);
+  if (linkedPartitioning)
+    params.append('linked_partitioning', linkedPartitioning);
 
   const appendedLink = params.toString();
-  return fetchWithSoundCloudAuth(
-    `https://api.soundcloud.com/tracks?q=${q}&${appendedLink}`
-  );
+  const encodedQ = encodeURIComponent(q.trim());
+  const url = `https://api.soundcloud.com/tracks?q=${encodedQ}&${appendedLink}&access=playable&limit=10&linked_partitioning=true`;
+
+  const response = await fetchWithSoundCloudAuth(url);
+
+  if (!response.ok) {
+    return response;
+  }
+
+  const data = await response.json();
+  const tracks = Array.isArray(data) ? data : data.collection ?? [];
+  return Response.json(tracks, { status: 200 });
 }

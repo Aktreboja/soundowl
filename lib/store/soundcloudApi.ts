@@ -1,9 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { SoundCloudProfile } from '@/types/soundcloud';
+import { SoundCloudProfile, SoundCloudTrack } from '@/types/soundcloud';
 import {
   SoundCloudActivity,
   SoundCloudActivityResponse,
-  SoundCloudTrack,
 } from '@/types/soundcloud';
 
 // Response types
@@ -51,7 +50,7 @@ export const soundcloudApi = createApi({
       providesTags: ['SoundCloudActivities'],
     }),
     getSoundCloudSearch: builder.query<
-      SoundCloudProfile,
+      SoundCloudTrack[],
       SoundCloudTrackSearchRequest
     >({
       query: ({ q, ids, limit, linked_partitioning, urns }) => {

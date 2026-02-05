@@ -1,7 +1,7 @@
 'use client';
 import { useMemo, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Button, Box, Spinner } from '@chakra-ui/react';
+import { Button, Box, Grid, GridItem, Spinner } from '@chakra-ui/react';
 import { useSoundCloudAuth } from '@/hooks/useSoundCloudAuth';
 import {
   useGetSoundCloudLikedTracksQuery,
@@ -15,7 +15,7 @@ import {
 } from '@/components/Soundcloud';
 import UniversalSearch from '@/components/Dashboard/UniversalSearch';
 import { SoundCloudActivity, SoundCloudTrack } from '@/types/soundcloud';
-
+  
 export default function SoundCloudPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -130,7 +130,7 @@ export default function SoundCloudPage() {
     }
 
     return (
-      <div className="w-full min-h-screen flex flex-col items-center justify-center gap-4">
+      <div className="w-full max-w-[1080px] mx-auto min-h-screen flex flex-col items-center justify-center gap-4 p-4">
         {/* Activity feed section */}
         <SoundCloudProfile profile={profile} />
         <UniversalSearch />
