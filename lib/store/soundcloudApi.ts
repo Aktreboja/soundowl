@@ -26,6 +26,7 @@ export const soundcloudApi = createApi({
     'SoundCloudProfile',
     'SoundCloudActivities',
     'SoundCloudLikesTracks',
+    'SoundcloudTrack',
     'SoundCloudSearch',
   ],
   endpoints: (builder) => ({
@@ -68,6 +69,19 @@ export const soundcloudApi = createApi({
       },
       providesTags: ['SoundCloudSearch'],
     }),
+
+    // Get single track by ID
+    getSoundCloudTrack: builder.query<SoundCloudTrack, number>({
+      query: (trackId) => `/v1/tracks/${trackId}`,
+      providesTags: (_result, _error, trackId) => [
+        { type: 'SoundcloudTrack', id: trackId },
+      ],
+    }),
+
+    // Get related tracks for a track
+    getSoundCloudRelatedTracks: builder.query<SoundCloudTrack[], number>({
+      query: (trackId) => `/v1/tracks/${trackId}/related`,
+    }),
   }),
 });
 
@@ -77,5 +91,7 @@ export const {
   useGetSoundCloudProfileQuery,
   useGetSoundCloudLikedTracksQuery,
   useGetSoundCloudActivitiesQuery,
+  useGetSoundCloudTrackQuery,
+  useGetSoundCloudRelatedTracksQuery,
   useGetSoundCloudSearchQuery,
 } = soundcloudApi;

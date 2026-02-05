@@ -154,13 +154,13 @@ export const TopTracksContent = () => {
             open={trackDialogOpen}
             onOpenChange={(e) => setTrackDialogOpen(e.open)}
           >
-            {selectedTrack && (
-              <TrackDialog
-                selectedTrack={selectedTrack}
-                onArtistClick={handleArtistClick}
-                onAlbumClick={handleAlbumClick}
-              />
-            )}
+            <TrackDialog
+              trackData={
+                selectedTrack ? { service: 'spotify', track: selectedTrack } : null
+              }
+              onArtistClick={handleArtistClick}
+              onAlbumClick={handleAlbumClick}
+            />
           </DialogRoot>
 
           <DialogRoot
