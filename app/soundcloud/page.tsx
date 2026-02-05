@@ -15,7 +15,7 @@ import {
 } from '@/components/Soundcloud';
 import UniversalSearch from '@/components/Dashboard/UniversalSearch';
 import { SoundCloudActivity, SoundCloudTrack } from '@/types/soundcloud';
-  
+
 export default function SoundCloudPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -130,12 +130,26 @@ export default function SoundCloudPage() {
     }
 
     return (
-      <div className="w-full max-w-[1080px] mx-auto min-h-screen flex flex-col items-center justify-center gap-4 p-4">
+      <div className="w-full max-w-[1920px] mx-auto min-h-screen flex flex-col items-center justify-center gap-4 p-8">
         {/* Activity feed section */}
-        <SoundCloudProfile profile={profile} />
-        <UniversalSearch />
-        <LikedTracks likedTracks={likedTracks} />
-        <ActivityFeed activities={activities?.collection || []} />
+        <Grid className="w-full grid-cols-2 grid max-xl:grid-cols-1" gap={4}>
+          <GridItem>
+            {' '}
+            <SoundCloudProfile profile={profile} />
+          </GridItem>
+        </Grid>
+
+        <h1 className="text-start text-2xl font-semibold w-full">
+          Soundloud Activity Feed
+        </h1>
+        <Grid className="grid-cols-2 grid max-xl:grid-cols-1" gap={4}>
+          <GridItem>
+            <LikedTracks likedTracks={likedTracks} />
+          </GridItem>
+          <GridItem>
+            <ActivityFeed activities={activities?.collection || []} />
+          </GridItem>
+        </Grid>
       </div>
     );
   }

@@ -1,34 +1,30 @@
 import type { SoundCloudProfile } from '@/types/soundcloud';
 import { Box, Stack, Text, Image, Button } from '@chakra-ui/react';
 import router from 'next/router';
+import UniversalSearch from '../Dashboard/UniversalSearch';
 
 export default function SoundCloudProfile({
   profile,
 }: {
   profile: SoundCloudProfile;
 }) {
-  const handleLogout = () => {
-    router.push('/api/soundcloud/auth');
-  };
   return (
     <Box
-      className="flex flex-col items-center justify-center gap-6 p-8"
-      bg={{ base: 'gray.50', _dark: 'gray.800' }}
+      className="flex w-full flex-col items-center justify-center gap-6 p-6"
+      bg={{ base: 'gray.50', _dark: 'gray.900' }}
       borderRadius="lg"
       boxShadow="lg"
-      maxW="2xl"
-      w="full"
     >
-      <h1 className="text-3xl font-bold text-center">Welcome to SoundCloud</h1>
+      <h1 className="text-3xl font-bold text-center">Welcome to NightOwl</h1>
 
       <Stack direction="column" gap={4} align="stretch" w="full">
-        <Stack direction="row" gap={4} justify="center" align="center">
+        <Stack direction="column" gap={4} justify="center" align="center">
           {profile.avatar_url && (
             <Image
               src={profile.avatar_url}
               alt={profile.full_name || profile.username}
-              width={64}
-              height={64}
+              width={24}
+              height={24}
               className="rounded-full"
             />
           )}
@@ -81,7 +77,7 @@ export default function SoundCloudProfile({
           </Stack>
         </Stack>
 
-        {profile.permalink_url && (
+        {/* {profile.permalink_url && (
           <a
             href={profile.permalink_url}
             target="_blank"
@@ -91,11 +87,12 @@ export default function SoundCloudProfile({
               View on SoundCloud
             </Button>
           </a>
-        )}
+        )} */}
 
-        <Button onClick={handleLogout} colorPalette="red" variant="outline">
+        {/* <Button onClick={handleLogout} colorPalette="red" variant="outline">
           Logout
-        </Button>
+        </Button> */}
+        <UniversalSearch />
       </Stack>
     </Box>
   );

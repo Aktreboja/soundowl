@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  Image,
   InputGroup,
   Input,
   Listbox,
@@ -9,16 +8,18 @@ import {
   Text,
   createListCollection,
 } from '@chakra-ui/react';
+import Image from 'next/image';
 import { useGetSoundCloudSearchQuery } from '@/lib/store/soundcloudApi';
 import { useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
-import { SoundCloudTrack } from '@/types/soundcloud';
 
 export default function UniversalSearch() {
   const [searchValue, setSearchValue] = useState('');
+  const [focused, setFocused] = useState<boolean>(false);
 
   const debounced = useDebouncedCallback((value: string) => {
     setSearchValue(value);
+    setFocused(true);
   }, 1000);
 
   const { data: searchResults } = useGetSoundCloudSearchQuery(
@@ -28,50 +29,45 @@ export default function UniversalSearch() {
 
   const tracks = searchResults ?? [];
 
-  console.log('SEARCH RESULTS: ', searchResults);
-
   return (
     <div className="relative w-full">
       <InputGroup>
         <Input
+          placeholder="Search for a track"
           onChange={(e) => {
             debounced(e.target.value);
           }}
         />
       </InputGroup>
-      {searchValue.length > 0 && (
+      {searchValue.length > 0 && focused && (
         <Listbox.Root
           collection={createListCollection({ items: tracks })}
-          className="absolute z-50"
+          className="absolute z-50 top-12"
         >
-          <Listbox.Label>Select Album</Listbox.Label>
           <Listbox.Content>
+            <Listbox.Label>Tracks found: ({tracks.length})</Listbox.Label>
             {tracks.map((track) => (
               <Listbox.Item
                 item={track}
                 key={track.id}
-                flexDirection="column"
-                alignItems="flex-start"
-                gap="2"
-                position="relative"
+                className="flex flex-row items-center gap-2"
               >
-                <Image
-                  src={track.artwork_url || ''}
-                  alt={track.title}
-                  bg="bg.subtle"
-                  objectFit="cover"
-                  aspectRatio="1"
-                  borderRadius="l2"
-                  flexShrink="0"
-                  height="150px"
-                  minWidth="150px"
-                />
-                <Stack gap="0">
-                  <Text fontSize="sm" fontWeight="medium" whiteSpace="nowrap">
-                    {track.title}
-                  </Text>
-                  <Text fontSize="xs">{track.user.username}</Text>
-                </Stack>
+                <div className="flex flex-row items-center gap-2">
+                  <Image
+                    src={track.artwork_url || ''}
+                    alt={track.title}
+                    height={40}
+                    width={40}
+                    quality={100}
+                  />
+                  <Stack gap="0">
+                    <Text fontSize="sm" fontWeight="medium" whiteSpace="nowrap">
+                      {track.title}
+                    </Text>
+                    <Text fontSize="xs">{track.user.username}</Text>
+                  </Stack>
+                </div>
+
                 <Listbox.ItemIndicator
                   position="absolute"
                   top="4"

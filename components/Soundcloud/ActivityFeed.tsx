@@ -16,11 +16,11 @@ export default function ActivityFeed({
     );
   }, [activities]);
   return (
-    <Card.Root variant="elevated" className="card w-3/4 flex flex-col gap-4">
+    <Card.Root variant="elevated" className="card flex flex-col gap-4">
       <Text fontSize="2xl" fontWeight="bold">
         Activities
       </Text>
-      <SimpleGrid columns={10} gap={2}>
+      <SimpleGrid columns={8} gap={2}>
         {uniqueActivities.map((activity) => (
           <Tooltip
             content={activity.origin.title || ''}
