@@ -1,21 +1,27 @@
 'use client';
-import { useGetSoundCloudActivitiesQuery } from '@/lib/store/soundcloudApi';
 import { SoundCloudActivity } from '@/types/soundcloud';
 import { Card, Text, SimpleGrid, Image } from '@chakra-ui/react';
 import { Tooltip } from '../ui/tooltip';
+import { useMemo } from 'react';
 
 export default function ActivityFeed({
   activities,
 }: {
   activities: SoundCloudActivity[];
 }) {
+  let uniqueActivities = useMemo(() => {
+    return activities.filter(
+      (activity, index, self) =>
+        index === self.findIndex((a) => a.origin.id === activity.origin.id)
+    );
+  }, [activities]);
   return (
     <Card.Root variant="elevated" className="card w-3/4 flex flex-col gap-4">
       <Text fontSize="2xl" fontWeight="bold">
         Activities
       </Text>
       <SimpleGrid columns={10} gap={2}>
-        {activities.map((activity) => (
+        {uniqueActivities.map((activity) => (
           <Tooltip
             content={activity.origin.title || ''}
             key={activity.origin.id}

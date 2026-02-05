@@ -4,7 +4,7 @@ import {
   SpotifyArtist,
   TrackDialogData,
   SoundCloudUser,
-} from '@/types';
+} from '@/types/spotify';
 import {
   Button,
   CloseButton,
