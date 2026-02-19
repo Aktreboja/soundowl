@@ -224,10 +224,11 @@ export const spotifyApi = createApi({
       providesTags: (result, error, id) => [{ type: 'AlbumTracks', id }],
     }),
 
-    // Get new releases
+    // Get new releases (from followed artists; falls back to browse if no follow scope/artists)
     getNewReleases: builder.query<NewReleasesResponse, void>({
       query: () => '/v1/browse/new-releases',
       providesTags: ['NewReleases'],
+      keepUnusedDataFor: 60,
     }),
   }),
 });

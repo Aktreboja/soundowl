@@ -23,16 +23,11 @@ export default function NewReleasesContent() {
     data,
     isFetching: isFetchingNewReleases,
     isError,
-  } = useGetNewReleasesQuery();
+  } = useGetNewReleasesQuery(undefined, { refetchOnFocus: true });
   useEffect(() => {
-    const fetchNewReleases = async () => {
-      if (data) {
-        console.log('OG DATA', data);
-        console.log(data.albums);
-        setNewReleases(data.albums.items);
-      }
-    };
-    fetchNewReleases();
+    if (data?.albums?.items) {
+      setNewReleases(data.albums.items);
+    }
   }, [data]);
 
   const handleAlbumClick = (album: SpotifyAlbum) => {
@@ -62,7 +57,7 @@ export default function NewReleasesContent() {
       className="card w-full flex flex-col gap-4"
       bg={{ base: 'white', _dark: 'gray.800' }}
     >
-      <h1 className="text-lg font-bold">New Releases</h1>
+      <h1 className="text-lg font-bold">New from artists you follow</h1>
 
       {isFetchingNewReleases && (
         <div className="grid max-md:grid-cols-5 grid-cols-10">

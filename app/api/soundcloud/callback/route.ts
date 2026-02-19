@@ -117,8 +117,9 @@ export async function GET(request: Request) {
       });
     }
 
-    // Redirect to soundcloud page
-    return NextResponse.redirect(`${baseUrl}/soundcloud`);
+    // Redirect to getting-started with param so client can show SoundCloud as connected
+    // (cookie is httpOnly so client cannot read it; query param avoids needing to poll)
+    return NextResponse.redirect(`${baseUrl}/getting-started?soundcloud=connected`);
   } catch (error) {
     console.error('Callback error:', error);
     return NextResponse.redirect(`${baseUrl}/soundcloud?error=callback_error`);

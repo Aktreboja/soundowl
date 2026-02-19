@@ -15,7 +15,7 @@ export default function SoundCloudProfile({
       borderRadius="lg"
       boxShadow="lg"
     >
-      <h1 className="text-3xl font-bold text-center">Welcome to NightOwl</h1>
+      <h1 className="text-3xl font-bold text-center">Welcome to SoundOwl</h1>
 
       <Stack direction="column" gap={4} align="stretch" w="full">
         <Stack direction="column" gap={4} justify="center" align="center">

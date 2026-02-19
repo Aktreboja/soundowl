@@ -101,7 +101,7 @@ export async function GET(request: Request) {
     }
 
     // Redirect to getting-started page
-    return NextResponse.redirect(`${baseUrl}/getting-started`);
+    return NextResponse.redirect(`${baseUrl}/getting-started?spotify=connected`);
   } catch (error) {
     console.error('Callback error:', error);
     return NextResponse.redirect(

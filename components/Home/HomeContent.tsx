@@ -32,19 +32,6 @@ export default function HomeContent() {
   const [profile, setProfile] = useState<SpotifyProfile | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const searchParams = useSearchParams();
-
-  // useEffect(() => {
-  //   const errorParam = searchParams.get('error');
-  //   if (errorParam) {
-  //     setError(`Authentication error: ${errorParam}`);
-  //     setLoading(false);
-  //     return;
-  //   }
-
-  //   // Check if user is authenticated with Spotify
-  //   fetchProfile();
-  // }, [searchParams]);
 
   const fetchProfile = async () => {
     try {
@@ -116,20 +103,7 @@ export default function HomeContent() {
         className="app-container"
         bg={{ base: 'gray.100', _dark: 'gray.900' }}
       >
-        <div>Auth page</div>
-        <Button onClick={handleLogout}>Logout</Button>
-        {/* <div className="w-4/5 max-lg:w-full max-w-[1420px]">
-          <h1 className="text-2xl font-bold text-center my-4">
-            Welcome back, {profile.display_name}
-          </h1>
-          <div className="flex gap-4 flex-col">
-            <NewReleasesContent />
-            <div className="flex gap-4 max-lg:flex-col">
-              <TopTracksContent />
-              <TopArtistsContent />
-            </div>
-          </div>
-        </div> */}
+        <NewReleasesContent />
       </Box>
     );
   }

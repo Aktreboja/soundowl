@@ -7,21 +7,27 @@ import {
   Icon,
   SimpleGrid,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { FaSpotify, FaSoundcloud } from 'react-icons/fa';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useGetSpotifyProfileQuery } from '@/lib/store/spotifyApi';
 import { useUpdateAccountMutation } from '@/lib/store/accountApi';
 import { User } from '@/types/User';
 
 export default function ConnectToServices({ account }: { account: User }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   // Profile query may be used in the future for displaying connected status
   useGetSpotifyProfileQuery();
   const [updateAccount] = useUpdateAccountMutation();
+
   const handleSpotifyConnect = () => {
     router.push('/api/spotify/auth');
+  };
+
+  const handleSoundCloudConnect = () => {
+    router.push('/api/soundcloud/auth');
   };
 
   // On Finish, update the account and push to home page
@@ -50,8 +56,53 @@ export default function ConnectToServices({ account }: { account: User }) {
     {
       label: 'SoundCloud',
       icon: <Icon as={FaSoundcloud} />,
+      onClick: handleSoundCloudConnect,
     },
   ];
+
+  const addSoundCloudIfMissing = useCallback(() => {
+    setSelectedServices((prev) =>
+      prev.includes('SoundCloud') ? prev : [...prev, 'SoundCloud']
+    );
+  }, []);
+
+  const addSpotifyIfMissing = useCallback(() => {
+    setSelectedServices((prev) =>
+      prev.includes('Spotify') ? prev : [...prev, 'Spotify']
+    );
+  }, []);
+
+  // After OAuth redirect: callback sends ?soundcloud=connected (cookie is httpOnly so client can't read it)
+  useEffect(() => {
+    if (searchParams.get('soundcloud') === 'connected') {
+      addSoundCloudIfMissing();
+      router.replace('/getting-started', { scroll: false });
+    } else if (searchParams.get('spotify') === 'connected') {
+      addSpotifyIfMissing();
+      router.replace('/getting-started', { scroll: false });
+    }
+  }, [searchParams, router, addSoundCloudIfMissing, addSpotifyIfMissing]);
+
+  // Initial load / refresh: ask server if SoundCloud is connected (server can read httpOnly cookie)
+  useEffect(() => {
+    fetch('/api/soundcloud/status')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.authenticated) addSoundCloudIfMissing();
+      })
+      .catch(() => {});
+
+    fetch('/api/spotify/status')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.authenticated) addSpotifyIfMissing();
+      })
+      .catch(() => {});
+  }, [addSoundCloudIfMissing, addSpotifyIfMissing]);
+
+
+
+
   return (
     <div className="flex flex-col items-center justify-center gap-4">
       <CheckboxGroup

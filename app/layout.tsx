@@ -6,6 +6,7 @@ import { AuthenticatedNavbar } from '@/components/Layout/AuthenticatedNavbar';
 import './globals.css';
 import { Suspense } from 'react';
 import { Spinner } from '@chakra-ui/react';
+import { CookiesNextProvider } from 'cookies-next';
 
 export const metadata: Metadata = {
   title: 'SoundOwl',
@@ -24,7 +25,9 @@ export default function RootLayout({
           <ChakraProvider>
             <Auth0Provider>
               <AuthenticatedNavbar />
-              <Suspense fallback={<Spinner size="lg" />}>{children}</Suspense>
+              <CookiesNextProvider>
+                <Suspense fallback={<Spinner size="lg" />}>{children}</Suspense>
+              </CookiesNextProvider>
             </Auth0Provider>
           </ChakraProvider>
         </StoreProvider>

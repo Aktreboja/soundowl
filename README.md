@@ -50,9 +50,9 @@ Create a `.env.local` in the project root with the following, grouped by service
 | `SPOTIFY_CLIENT_ID` | Spotify app client ID |
 | `SPOTIFY_CLIENT_SECRET` | Spotify app client secret |
 | `SPOTIFY_REDIRECT_URI` | (Optional) Defaults to `{AUTH0_BASE_URL}/api/spotify/callback` |
-| `SPOTIFY_API_SCOPES` | Spotify OAuth scopes |
+| `SPOTIFY_API_SCOPES` | Spotify OAuth scopes (include `user-follow-read` for New Releases from followed artists) |
 
-**Note:** Spotify scopes will vary based on the endpoints you will use for your use case. List of the spotify scopes below.
+**Note:** Spotify scopes will vary based on the endpoints you will use for your use case. For the dashboard "New Releases" (from followed artists), include `user-follow-read`. List of the spotify scopes below.
 
 <a href="https://developer.spotify.com/documentation/web-api/concepts/scopes" target="_blank" rel="noopener noreferrer">List of Spotify Scopes</a>
 

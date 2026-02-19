@@ -90,7 +90,6 @@ export async function ensureSpotifyAccessToken(): Promise<
   { success: true; token: string } | { success: false; response: NextResponse }
 > {
   const token = await getSpotifyAccessToken();
-  console.log(token);
 
   if (!token) {
     return {
@@ -123,6 +122,7 @@ export async function fetchWithSpotifyAuth(
   try {
     let response = await fetch(url, {
       ...options,
+      cache: 'no-store',
       headers: {
         ...options.headers,
         Authorization: `Bearer ${accessToken}`,
@@ -147,6 +147,7 @@ export async function fetchWithSpotifyAuth(
           // Retry the request with the new token
           response = await fetch(url, {
             ...options,
+            cache: 'no-store',
             headers: {
               ...options.headers,
               Authorization: `Bearer ${accessToken}`,
