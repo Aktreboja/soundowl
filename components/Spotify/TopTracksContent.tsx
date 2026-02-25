@@ -5,12 +5,15 @@ import Image from 'next/image';
 import { DialogRoot } from '@chakra-ui/react';
 import { Tooltip } from '../ui/tooltip';
 import { DashboardCarouselCard } from '../ui/DashboardCarouselCard';
-import { TrackDialog } from './TrackDialog';
-import { ArtistDialog } from './ArtistDialog';
-import { AlbumDialog } from './AlbumDialog';
 import { useGetTopTracksQuery } from '@/lib/store/spotifyApi';
 import { createListCollection } from '@chakra-ui/react';
-import { timeRangeItems, type TimeRange } from './constants';
+import {
+  ArtistDialog,
+  TrackDialog,
+  AlbumDialog,
+  timeRangeItems,
+  type TimeRange,
+} from '../Dashboard';
 
 export const TopTracksContent = () => {
   const [timeRange, setTimeRange] = useState<TimeRange>('short_term');
