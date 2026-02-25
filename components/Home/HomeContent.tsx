@@ -1,6 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useState } from 'react';
 import NewReleasesContent from '@/components/Dashboard/NewReleasesContent';
 import TopTracksContent from '@/components/Dashboard/TopTracksContent';
 import TopArtistsContent from '@/components/Dashboard/TopArtistsContent';
@@ -33,34 +32,34 @@ export default function HomeContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchProfile = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/spotify/profile');
+  // const fetchProfile = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const response = await fetch('/api/spotify/profile');
 
-      if (response.status === 401) {
-        // Not authenticated
-        setProfile(null);
-        setError(null);
-        setLoading(false);
-        return;
-      }
+  //     if (response.status === 401) {
+  //       // Not authenticated
+  //       setProfile(null);
+  //       setError(null);
+  //       setLoading(false);
+  //       return;
+  //     }
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch profile');
-      }
+  //     if (!response.ok) {
+  //       const errorData = await response.json();
+  //       throw new Error(errorData.error || 'Failed to fetch profile');
+  //     }
 
-      const data = await response.json();
-      setProfile(data);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      setProfile(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     const data = await response.json();
+  //     setProfile(data);
+  //     setError(null);
+  //   } catch (err) {
+  //     setError(err instanceof Error ? err.message : 'An error occurred');
+  //     setProfile(null);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleGetStarted = () => {
     router.push('/auth/login?returnTo=/getting-started');
@@ -96,34 +95,13 @@ export default function HomeContent() {
   }
 
   // If profile is found, display user information (Dashboard)
-  // TODO (AR): revert back to profile when auth is working
-  if (user) {
-    return (
-      <Box
-        className="app-container"
-        bg={{ base: 'gray.100', _dark: 'gray.900' }}
-      >
-        <Box className="w-full max-w-[1080px] flex flex-col gap-4 justify-center items-center grow">
-          <NewReleasesContent />
-          <TopTracksContent />
-          <TopArtistsContent />
-        </Box>
-      </Box>
-    );
-  }
-
-  // Welcome screen for unauthenticated users
   return (
-    <Box>
-      <div className="flex flex-col items-center justify-center w-full min-h-screen ">
-        <h1 className="text-2xl font-bold text-center">Welcome to SoundOwl</h1>
-        <div className="flex flex-col items-center justify-center gap-4">
-          <p>Click on the button below to get started</p>
-          <Button variant="solid" colorScheme="blue" onClick={handleGetStarted}>
-            Get Started
-          </Button>
-        </div>
-      </div>
+    <Box className="app-container" bg={{ base: 'gray.100', _dark: 'gray.900' }}>
+      <Box className="w-full max-w-[1080px] flex flex-col gap-4 justify-center items-center grow">
+        <NewReleasesContent />
+        <TopTracksContent />
+        <TopArtistsContent />
+      </Box>
     </Box>
   );
 }

@@ -7,7 +7,6 @@ import './globals.css';
 import { Suspense } from 'react';
 import { Spinner } from '@chakra-ui/react';
 import { CookiesNextProvider } from 'cookies-next';
-
 export const metadata: Metadata = {
   title: 'SoundOwl',
   description: 'Spotify Web Application',
@@ -26,7 +25,9 @@ export default function RootLayout({
             <Auth0Provider>
               <AuthenticatedNavbar />
               <CookiesNextProvider>
-                <Suspense fallback={<Spinner size="lg" />}>{children}</Suspense>
+                <Suspense fallback={<Spinner size="lg" />}>
+                  <div className="flex">{children}</div>
+                </Suspense>
               </CookiesNextProvider>
             </Auth0Provider>
           </ChakraProvider>

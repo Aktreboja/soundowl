@@ -8,7 +8,6 @@ import LandingPage from '@/components/Home/LandingPage';
 - User is authenticated and has an account but has not registered with any streaming services
 */
 
-// TODO (AR): There is currently a flicker showing the landing page before the user is redirected to the getting-started page
 export default async function Home() {
   const account = await getUserAccount((await verifyUser())?.email ?? '');
   if (account) {
