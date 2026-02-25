@@ -2,15 +2,17 @@
 import { useState, useMemo } from 'react';
 import { SpotifyAlbum, SpotifyArtist, SpotifyTrack } from '@/types/spotify';
 import Image from 'next/image';
-import { DialogRoot } from '@chakra-ui/react';
 import { Tooltip } from '../ui/tooltip';
 import { DashboardCarouselCard } from '../ui/DashboardCarouselCard';
-import { ArtistDialog } from './ArtistDialog';
-import { TrackDialog } from './TrackDialog';
-import { AlbumDialog } from './AlbumDialog';
 import { useGetTopArtistsQuery } from '@/lib/store/spotifyApi';
-import { createListCollection } from '@chakra-ui/react';
-import { timeRangeItems, type TimeRange } from './constants';
+import { createListCollection, DialogRoot } from '@chakra-ui/react';
+import {
+  ArtistDialog,
+  TrackDialog,
+  AlbumDialog,
+  timeRangeItems,
+  type TimeRange,
+} from '../Dashboard';
 
 export const TopArtistsContent = () => {
   const [timeRange, setTimeRange] = useState<TimeRange>('short_term');

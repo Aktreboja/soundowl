@@ -1,11 +1,12 @@
 'use client';
 import { useState } from 'react';
-import NewReleasesContent from '@/components/Dashboard/NewReleasesContent';
-import TopTracksContent from '@/components/Dashboard/TopTracksContent';
-import TopArtistsContent from '@/components/Dashboard/TopArtistsContent';
+import {
+  NewReleasesContent,
+  TopTracksContent,
+  TopArtistsContent,
+} from '@/components/Spotify';
 import { Box, Button, Spinner } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
-
 import { useUser } from '@auth0/nextjs-auth0/client';
 
 interface SpotifyProfile {
