@@ -2,32 +2,15 @@
 import { useState, useMemo } from 'react';
 import { SpotifyAlbum, SpotifyArtist, SpotifyTrack } from '@/types/spotify';
 import Image from 'next/image';
-import {
-  SelectContent,
-  SelectValueText,
-  SelectItem,
-  SelectRoot,
-  SelectTrigger,
-} from '../ui/select';
-import {
-  createListCollection,
-  DialogRoot,
-  Card,
-  Skeleton,
-} from '@chakra-ui/react';
+import { DialogRoot } from '@chakra-ui/react';
 import { Tooltip } from '../ui/tooltip';
+import { DashboardCarouselCard } from '../ui/DashboardCarouselCard';
 import { TrackDialog } from './TrackDialog';
 import { ArtistDialog } from './ArtistDialog';
 import { AlbumDialog } from './AlbumDialog';
 import { useGetTopTracksQuery } from '@/lib/store/spotifyApi';
-
-const timeRangeItems = [
-  { value: 'short_term', label: 'Last Week' },
-  { value: 'medium_term', label: 'Last Month' },
-  { value: 'long_term', label: 'All Time' },
-];
-
-type TimeRange = 'short_term' | 'medium_term' | 'long_term';
+import { createListCollection } from '@chakra-ui/react';
+import { timeRangeItems, type TimeRange } from './constants';
 
 export const TopTracksContent = () => {
   const [timeRange, setTimeRange] = useState<TimeRange>('short_term');
@@ -78,62 +61,25 @@ export const TopTracksContent = () => {
   };
 
   return (
-    <Card.Root
-      variant="elevated"
-      className="card w-full flex flex-col gap-4"
-      bg={{ base: 'white', _dark: 'gray.800' }}
-    >
-      <h2 className="font-bold text-lg mb-2">Your Top Tracks</h2>
-      <div>
-        <SelectRoot
-          collection={collection}
-          size="sm"
-          variant="subtle"
-          defaultValue={[timeRange]}
-          onValueChange={(value) => setTimeRange(value.value[0] as TimeRange)}
-        >
-          <SelectTrigger>
-            <SelectValueText />
-          </SelectTrigger>
-          <SelectContent>
-            {collection.items.map((item) => (
-              <SelectItem key={item.value} item={item}>
-                {item.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </SelectRoot>
-      </div>
-
-      {isFetchingTopTracks && (
-        <div className="grid grid-cols-5">
-          {Array.from({ length: 20 }).map((_, index) => (
-            <Skeleton
-              key={index}
-              className="aspect-square w-full rounded-none"
-              style={{
-                animationDelay: `${index * 60}ms`,
-                animationDuration: '1.2s',
-                animationFillMode: 'both',
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      {isError && (
-        <div className="text-red-500 text-center py-4">
-          Failed to load top tracks. Please try again.
-        </div>
-      )}
-
-      {!isFetchingTopTracks && !isError && (
-        <>
-          <div className="grid grid-cols-5">
-            {topTracks.map((track) => (
+    <>
+      <DashboardCarouselCard<SpotifyTrack>
+        title="Your Top Tracks"
+        select={{
+          collection,
+          value: timeRange,
+          onValueChange: (v) => setTimeRange(v as TimeRange),
+        }}
+        isLoading={isFetchingTopTracks}
+        isError={isError}
+        errorMessage="Failed to load top tracks. Please try again."
+        items={topTracks}
+        itemsPerSlide={7}
+        renderSlide={(tracks) => (
+          <div className="flex gap-4 flex-row w-full">
+            {tracks.map((track) => (
               <Tooltip content={track.name} key={track.id} showArrow>
                 <div
-                  className="cursor-pointer hover:opacity-80"
+                  className="cursor-pointer hover:opacity-80 flex-1"
                   onClick={() => handleTrackClick(track)}
                 >
                   <Image
@@ -147,54 +93,54 @@ export const TopTracksContent = () => {
               </Tooltip>
             ))}
           </div>
+        )}
+      />
 
-          <DialogRoot
-            size="lg"
-            placement="center"
-            open={trackDialogOpen}
-            onOpenChange={(e) => setTrackDialogOpen(e.open)}
-          >
-            <TrackDialog
-              trackData={
-                selectedTrack ? { service: 'spotify', track: selectedTrack } : null
-              }
-              onArtistClick={handleArtistClick}
-              onAlbumClick={handleAlbumClick}
-            />
-          </DialogRoot>
+      <DialogRoot
+        size="lg"
+        placement="center"
+        open={trackDialogOpen}
+        onOpenChange={(e) => setTrackDialogOpen(e.open)}
+      >
+        <TrackDialog
+          trackData={
+            selectedTrack ? { service: 'spotify', track: selectedTrack } : null
+          }
+          onArtistClick={handleArtistClick}
+          onAlbumClick={handleAlbumClick}
+        />
+      </DialogRoot>
 
-          <DialogRoot
-            size="lg"
-            placement="center"
-            open={artistDialogOpen}
-            onOpenChange={(e) => setArtistDialogOpen(e.open)}
-          >
-            {selectedArtist && (
-              <ArtistDialog
-                selectedArtist={selectedArtist}
-                onTrackClick={handleTrackClick}
-                onAlbumClick={handleAlbumClick}
-              />
-            )}
-          </DialogRoot>
+      <DialogRoot
+        size="lg"
+        placement="center"
+        open={artistDialogOpen}
+        onOpenChange={(e) => setArtistDialogOpen(e.open)}
+      >
+        {selectedArtist && (
+          <ArtistDialog
+            selectedArtist={selectedArtist}
+            onTrackClick={handleTrackClick}
+            onAlbumClick={handleAlbumClick}
+          />
+        )}
+      </DialogRoot>
 
-          <DialogRoot
-            size="lg"
-            placement="center"
-            open={albumDialogOpen}
-            onOpenChange={(e) => setAlbumDialogOpen(e.open)}
-          >
-            {selectedAlbum && (
-              <AlbumDialog
-                selectedAlbum={selectedAlbum}
-                onArtistClick={handleArtistClick}
-                onTrackClick={handleTrackClick}
-              />
-            )}
-          </DialogRoot>
-        </>
-      )}
-    </Card.Root>
+      <DialogRoot
+        size="lg"
+        placement="center"
+        open={albumDialogOpen}
+        onOpenChange={(e) => setAlbumDialogOpen(e.open)}
+      >
+        {selectedAlbum && (
+          <AlbumDialog
+            selectedAlbum={selectedAlbum}
+            onArtistClick={handleArtistClick}
+            onTrackClick={handleTrackClick}
+          />
+        )}
+      </DialogRoot>
+    </>
   );
 };
 

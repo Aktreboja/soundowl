@@ -103,7 +103,11 @@ export default function HomeContent() {
         className="app-container"
         bg={{ base: 'gray.100', _dark: 'gray.900' }}
       >
-        <NewReleasesContent />
+        <Box className="w-full max-w-[1080px] flex flex-col gap-4 justify-center items-center grow">
+          <NewReleasesContent />
+          <TopTracksContent />
+          <TopArtistsContent />
+        </Box>
       </Box>
     );
   }
