@@ -1,18 +1,21 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { getSpotifyRedirectUri } from '../../../../lib/spotify-config';
 import {
-  generateCodeVerifier,
-  generateCodeChallenge,
-} from '../../../../lib/spotify-pkce';
+  generateState,
+  storeOAuthState,
+} from '../../../../lib/mongodb/oauth-state';
 
-// TODO (AR): Modularize logic
+/**
+ * Initiates Spotify OAuth Authorization Code flow.
+ * Uses standard Authorization Code flow (with client secret) instead of PKCE
+ * since this is a confidential client (server-side Next.js app).
+ *
+ * State is stored in MongoDB instead of cookies to avoid browser cookie
+ * issues during OAuth redirect flows.
+ */
 export async function GET() {
   const clientId = process.env.SPOTIFY_CLIENT_ID;
-  const redirectUri =
-    process.env.SPOTIFY_REDIRECT_URI ||
-    `${
-      process.env.AUTH0_BASE_URL || 'http://localhost:3000'
-    }/api/spotify/callback`;
+  const redirectUri = getSpotifyRedirectUri();
 
   if (!clientId) {
     return NextResponse.json(
@@ -21,30 +24,12 @@ export async function GET() {
     );
   }
 
-  // Generate PKCE code verifier and challenge
-  const codeVerifier = generateCodeVerifier();
-  const codeChallenge = generateCodeChallenge(codeVerifier);
+  // Generate a cryptographically secure state for CSRF protection
+  const state = generateState();
 
-  // Generate a random state for CSRF protection
-  const state =
-    Math.random().toString(36).substring(2, 15) +
-    Math.random().toString(36).substring(2, 15);
-
-  // Store code verifier and state in cookies for verification
-  const cookieStore = await cookies();
-  cookieStore.set('spotify_code_verifier', codeVerifier, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 600, // 10 minutes
-  });
-
-  cookieStore.set('spotify_auth_state', state, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 600, // 10 minutes
-  });
+  // Store state in MongoDB for verification in callback
+  // This is more reliable than cookies which can be lost in OAuth redirect chains
+  await storeOAuthState(state, 'spotify');
 
   const scope = process.env.SPOTIFY_API_SCOPES as string;
   const authUrl =
@@ -53,9 +38,7 @@ export async function GET() {
     `client_id=${encodeURIComponent(clientId)}&` +
     `scope=${encodeURIComponent(scope)}&` +
     `redirect_uri=${encodeURIComponent(redirectUri)}&` +
-    `state=${encodeURIComponent(state)}&` +
-    `code_challenge=${encodeURIComponent(codeChallenge)}&` +
-    `code_challenge_method=S256`;
+    `state=${encodeURIComponent(state)}`;
 
   return NextResponse.redirect(authUrl);
 }

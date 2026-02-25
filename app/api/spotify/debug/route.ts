@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server';
+import { getSpotifyRedirectUri } from '../../../../lib/spotify-config';
 
 export async function GET() {
   const clientId = process.env.SPOTIFY_CLIENT_ID;
-  const redirectUri =
-    process.env.SPOTIFY_REDIRECT_URI ||
-    `${
-      process.env.AUTH0_BASE_URL || 'http://localhost:3000'
-    }/api/spotify/callback`;
+  const redirectUri = getSpotifyRedirectUri();
   const baseUrl = process.env.AUTH0_BASE_URL || 'http://localhost:3000';
 
   return NextResponse.json({

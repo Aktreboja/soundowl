@@ -1,13 +1,21 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { spotifyApi } from './spotifyApi';
+import { soundcloudApi } from './soundcloudApi';
+import { accountApi } from './accountApi';
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       [spotifyApi.reducerPath]: spotifyApi.reducer,
+      [soundcloudApi.reducerPath]: soundcloudApi.reducer,
+      [accountApi.reducerPath]: accountApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat(spotifyApi.middleware),
+      getDefaultMiddleware().concat(
+        spotifyApi.middleware,
+        soundcloudApi.middleware,
+        accountApi.middleware
+      ),
   });
 };
 

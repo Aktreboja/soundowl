@@ -10,9 +10,16 @@ export async function GET() {
   const accessToken = cookieStore.get('spotify_access_token')?.value;
   const refreshToken = cookieStore.get('spotify_refresh_token')?.value;
 
+  console.log(accessToken);
+  console.log(refreshToken);
+
   // User is considered authenticated if they have either token
   // (access token can be refreshed if expired but refresh token exists)
   const authenticated = Boolean(accessToken || refreshToken);
 
-  return NextResponse.json({ authenticated });
+  if (authenticated) {
+    return NextResponse.json({ authenticated: true }, { status: 200 });
+  } else {
+    return NextResponse.json({ authenticated: false }, { status: 409 });
+  }
 }

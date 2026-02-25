@@ -1,136 +1,19 @@
-'use client';
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import TopTracksContent from '@/components/Dashboard/TopTracksContent';
-import TopArtistsContent from '@/components/Dashboard/TopArtistsContent';
-import { Box, Button, Spinner } from '@chakra-ui/react';
+import { getUserAccount } from '@/app/utils';
+import HomeContent from '@/components/Home/HomeContent';
+import { verifyUser } from '@/lib/dal';
+import LandingPage from '@/components/Home/LandingPage';
 
-interface SpotifyProfile {
-  id: string;
-  display_name: string;
-  email: string;
-  country: string;
-  followers: {
-    total: number;
-  };
-  images: Array<{
-    url: string;
-  }>;
-  product: string;
-  external_urls: {
-    spotify: string;
-  };
-}
+/* When to go to getting-started
+- User is authenticated through Auth0 but has no account registered in mongo
+- User is authenticated and has an account but has not registered with any streaming services
+*/
 
-export default function Home() {
-  const [profile, setProfile] = useState<SpotifyProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    // Check for error in URL params
-    const errorParam = searchParams.get('error');
-    if (errorParam) {
-      setError(`Authentication error: ${errorParam}`);
-      setLoading(false);
-      return;
-    }
-
-    // Check if user is authenticated with Spotify
-    fetchProfile();
-  }, [searchParams]);
-
-  const fetchProfile = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/spotify/profile');
-
-      if (response.status === 401) {
-        // Not authenticated
-        setProfile(null);
-        setError(null);
-        setLoading(false);
-        return;
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch profile');
-      }
-
-      const data = await response.json();
-      setProfile(data);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      setProfile(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGetStarted = () => {
-    window.location.href = '/api/spotify/auth';
-  };
-
-  if (loading) {
-    return (
-      <div className="w-full min-h-screen flex items-center justify-center">
-        <Spinner size="lg" />
-      </div>
-    );
+// TODO (AR): There is currently a flicker showing the landing page before the user is redirected to the getting-started page
+export default async function Home() {
+  const account = await getUserAccount((await verifyUser())?.email ?? '');
+  if (account) {
+    return <HomeContent />;
+  } else {
+    return <LandingPage />;
   }
-
-  if (error && !profile) {
-    return (
-      <div className="w-full h-full flex items-center justify-center">
-        <Box as="div" className="flex flex-col items-center justify-center">
-          <h1 className="text-2xl font-bold text-center">Welcome</h1>
-          <div className="action-card">
-            <p className="action-text">{error}</p>
-            <Button onClick={handleGetStarted} colorPalette="blue">
-              Try Again
-            </Button>
-          </div>
-        </Box>
-      </div>
-    );
-  }
-
-  // If profile is found, display user information
-  if (profile) {
-    return (
-      <Box
-        className="app-container"
-        bg={{ base: 'gray.100', _dark: 'gray.900' }}
-      >
-        <div className="w-4/5 max-lg:w-full">
-          <h1 className="text-2xl font-bold text-center my-4">
-            Welcome back, {profile.display_name}
-          </h1>
-          <div>
-            <div className="flex gap-4 max-lg:flex-col">
-              <TopTracksContent />
-              <TopArtistsContent />
-            </div>
-          </div>
-        </div>
-      </Box>
-    );
-  }
-
-  return (
-    <Box>
-      <div className="flex flex-col items-center justify-center w-full min-h-screen ">
-        <h1 className="text-2xl font-bold text-center">Welcome to SoundOwl</h1>
-        <div className="flex flex-col items-center justify-center gap-4">
-          <p>Click on the button below to get started</p>
-          <Button variant="solid" colorScheme="blue" onClick={handleGetStarted}>
-            Get Started
-          </Button>
-        </div>
-      </div>
-    </Box>
-  );
 }

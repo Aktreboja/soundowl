@@ -88,3 +88,18 @@ export interface SpotifyTrack {
   type: 'track';
   uri: SpotifyURI;
 }
+
+// SoundCloud User (for track dialog)
+export interface SoundCloudUser {
+  id: number;
+  permalink: string;
+  username: string;
+  full_name: string;
+  avatar_url: string | null;
+  permalink_url?: string;
+}
+
+// Discriminated union for TrackDialog data
+export type TrackDialogData =
+  | { service: 'spotify'; track: SpotifyTrack }
+  | { service: 'soundcloud'; track: import('@/types/soundcloud').SoundCloudTrack };

@@ -4,7 +4,7 @@ import {
   SpotifyTrack,
   SpotifyAlbum,
   SpotifyProfile,
-} from '@/types';
+} from '@/types/spotify';
 
 // Extended artist with additional details
 export interface ArtistDetails extends SpotifyArtist {
@@ -44,6 +44,54 @@ interface MultipleArtistsResponse {
   artists: SpotifyArtist[];
 }
 
+// Extended album with full details
+export interface AlbumDetails extends SpotifyAlbum {
+  genres: string[];
+  label: string;
+  popularity: number;
+  copyrights: Array<{
+    text: string;
+    type: string;
+  }>;
+  tracks: {
+    items: SimplifiedTrack[];
+    total: number;
+    limit: number;
+    offset: number;
+    href: string;
+    next: string | null;
+    previous: string | null;
+  };
+}
+
+// Simplified track (from album tracks endpoint)
+export interface SimplifiedTrack {
+  artists: SpotifyArtist[];
+  available_markets: string[];
+  disc_number: number;
+  duration_ms: number;
+  explicit: boolean;
+  external_urls: { spotify: string };
+  href: string;
+  id: string;
+  is_local: boolean;
+  name: string;
+  preview_url: string | null;
+  track_number: number;
+  type: 'track';
+  uri: string;
+}
+
+interface AlbumTracksResponse {
+  items: SimplifiedTrack[];
+  total: number;
+  limit: number;
+  offset: number;
+  href: string;
+  next: string | null;
+  previous: string | null;
+}
+
 interface AuthStatusResponse {
   authenticated: boolean;
 }
@@ -56,10 +104,33 @@ interface TopItemsParams {
   offset?: number;
 }
 
+interface AlbumResponseMetadata {
+  href: string;
+  limit: number;
+  next: string | null;
+  previous: string | null;
+  total: number;
+  items: SpotifyAlbum[];
+}
+
+interface NewReleasesResponse {
+  albums: AlbumResponseMetadata;
+}
+
 export const spotifyApi = createApi({
   reducerPath: 'spotifyApi',
   baseQuery: fetchBaseQuery({ baseUrl: '/api/spotify' }),
-  tagTypes: ['Profile', 'TopItems', 'Artist', 'Albums', 'TopTracks', 'Artists'],
+  tagTypes: [
+    'Profile',
+    'TopItems',
+    'Artist',
+    'Albums',
+    'TopTracks',
+    'Artists',
+    'Album',
+    'AlbumTracks',
+    'NewReleases',
+  ],
   endpoints: (builder) => ({
     // Auth status endpoint
     getAuthStatus: builder.query<AuthStatusResponse, void>({
@@ -67,7 +138,7 @@ export const spotifyApi = createApi({
     }),
 
     // User profile endpoint
-    getProfile: builder.query<SpotifyProfile, void>({
+    getSpotifyProfile: builder.query<SpotifyProfile, void>({
       query: () => '/profile',
       providesTags: ['Profile'],
     }),
@@ -84,7 +155,7 @@ export const spotifyApi = createApi({
       ],
     }),
 
-    // Convenience: Get top artists
+    // Get top artists
     getTopArtists: builder.query<
       TopItemsResponse<SpotifyArtist>,
       Omit<TopItemsParams, 'type'>
@@ -96,7 +167,7 @@ export const spotifyApi = createApi({
       ],
     }),
 
-    // Convenience: Get top tracks
+    // Get top tracks
     getTopTracks: builder.query<
       TopItemsResponse<SpotifyTrack>,
       Omit<TopItemsParams, 'type'>
@@ -140,13 +211,32 @@ export const spotifyApi = createApi({
             ]
           : [{ type: 'Artists', id: 'LIST' }],
     }),
+
+    // Get single album details
+    getAlbum: builder.query<AlbumDetails, string>({
+      query: (albumId) => `/v1/album/${albumId}`,
+      providesTags: (result, error, id) => [{ type: 'Album', id }],
+    }),
+
+    // Get album tracks
+    getAlbumTracks: builder.query<AlbumTracksResponse, string>({
+      query: (albumId) => `/v1/albums/${albumId}/tracks`,
+      providesTags: (result, error, id) => [{ type: 'AlbumTracks', id }],
+    }),
+
+    // Get new releases (from followed artists; falls back to browse if no follow scope/artists)
+    getNewReleases: builder.query<NewReleasesResponse, void>({
+      query: () => '/v1/browse/new-releases',
+      providesTags: ['NewReleases'],
+      keepUnusedDataFor: 60,
+    }),
   }),
 });
 
 // Export hooks for usage in components
 export const {
   useGetAuthStatusQuery,
-  useGetProfileQuery,
+  useGetSpotifyProfileQuery,
   useGetTopItemsQuery,
   useGetTopArtistsQuery,
   useGetTopTracksQuery,
@@ -154,4 +244,7 @@ export const {
   useGetArtistTopTracksQuery,
   useGetArtistAlbumsQuery,
   useGetMultipleArtistsQuery,
+  useGetAlbumQuery,
+  useGetAlbumTracksQuery,
+  useGetNewReleasesQuery,
 } = spotifyApi;

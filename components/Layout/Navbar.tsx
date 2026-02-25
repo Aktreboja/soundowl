@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Box, Button, Dialog, Portal, CloseButton } from '@chakra-ui/react';
-import type { SpotifyProfile } from '@/types';
+import type { SpotifyProfile } from '@/types/spotify';
 import { ColorModeButton } from '../ui/color-mode';
 
 export const Navbar = () => {
@@ -24,12 +24,13 @@ export const Navbar = () => {
     fetchProfile();
   }, []);
 
+  // Logout from Spotify and redirect to Auth0 logout
   const handleLogout = async () => {
     try {
       await fetch('/api/spotify/logout', { method: 'POST' });
       setProfile(null);
       setIsOpen(false);
-      window.location.href = '/';
+      window.location.href = '/auth/logout';
     } catch (err) {
       console.error('Logout error:', err);
     }

@@ -9,9 +9,28 @@ import { LuMoon, LuSun } from "react-icons/lu"
 
 export interface ColorModeProviderProps extends ThemeProviderProps {}
 
-export function ColorModeProvider(props: ColorModeProviderProps) {
+export function ColorModeProvider({ children, ...props }: ColorModeProviderProps) {
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Render children without ThemeProvider on server to avoid hydration mismatch
+  if (!mounted) {
+    return <>{children}</>
+  }
+
   return (
-    <ThemeProvider attribute="class" disableTransitionOnChange {...props} />
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+      {...props}
+    >
+      {children}
+    </ThemeProvider>
   )
 }
 
@@ -25,12 +44,13 @@ export interface UseColorModeReturn {
 
 export function useColorMode(): UseColorModeReturn {
   const { resolvedTheme, setTheme, forcedTheme } = useTheme()
-  const colorMode = forcedTheme || resolvedTheme
+  // Default to 'light' when theme is undefined (during SSR/initial hydration)
+  const colorMode = (forcedTheme || resolvedTheme || "light") as ColorMode
   const toggleColorMode = () => {
     setTheme(resolvedTheme === "dark" ? "light" : "dark")
   }
   return {
-    colorMode: colorMode as ColorMode,
+    colorMode,
     setColorMode: setTheme,
     toggleColorMode,
   }
@@ -38,6 +58,15 @@ export function useColorMode(): UseColorModeReturn {
 
 export function useColorModeValue<T>(light: T, dark: T) {
   const { colorMode } = useColorMode()
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Return light theme on server/initial render for consistency
+  if (!mounted) return light
+
   return colorMode === "dark" ? dark : light
 }
 
