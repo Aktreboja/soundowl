@@ -1,5 +1,6 @@
 import { auth0 } from '../../lib/auth0';
 import { redirect } from 'next/navigation';
+import { AuthenticatedNavbar } from '../Layout/AuthenticatedNavbar';
 
 // Layout component for protected pages
 export default async function ProtectedPageLayout({
@@ -14,5 +15,10 @@ export default async function ProtectedPageLayout({
     redirect('/auth/login');
   }
 
-  return <>{children}</>;
+  return (
+    <div className="flex flex-col w-full">
+      <AuthenticatedNavbar />
+      {children}
+    </div>
+  );
 }
