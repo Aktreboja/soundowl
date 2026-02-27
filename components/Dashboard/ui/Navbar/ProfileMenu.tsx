@@ -100,57 +100,6 @@ export default function ProfileMenu({
                 </Box>
               )}
 
-              <div className="mt-6 grid grid-cols-3 gap-4">
-                <div className="text-center">
-                  <Box
-                    as="p"
-                    className="text-lg font-semibold"
-                    color={{ base: 'gray.900', _dark: 'white' }}
-                  >
-                    {profile.followers?.total?.toLocaleString() || 0}
-                  </Box>
-                  <Box
-                    as="p"
-                    className="text-xs uppercase tracking-wide"
-                    color={{ base: 'gray.500', _dark: 'gray.400' }}
-                  >
-                    Followers
-                  </Box>
-                </div>
-                <div className="text-center">
-                  <Box
-                    as="p"
-                    className="text-lg font-semibold"
-                    color={{ base: 'gray.900', _dark: 'white' }}
-                  >
-                    {profile.country || 'N/A'}
-                  </Box>
-                  <Box
-                    as="p"
-                    className="text-xs uppercase tracking-wide"
-                    color={{ base: 'gray.500', _dark: 'gray.400' }}
-                  >
-                    Country
-                  </Box>
-                </div>
-                <div className="text-center">
-                  <Box
-                    as="p"
-                    className="text-lg font-semibold capitalize"
-                    color={{ base: 'gray.900', _dark: 'white' }}
-                  >
-                    {profile.product || 'N/A'}
-                  </Box>
-                  <Box
-                    as="p"
-                    className="text-xs uppercase tracking-wide"
-                    color={{ base: 'gray.500', _dark: 'gray.400' }}
-                  >
-                    Plan
-                  </Box>
-                </div>
-              </div>
-
               {profile.external_urls?.spotify && (
                 <a
                   href={profile.external_urls.spotify}

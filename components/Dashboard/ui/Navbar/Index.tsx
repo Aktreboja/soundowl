@@ -46,19 +46,27 @@ export const Navbar = () => {
 
       {/* Navigation Buttons */}
       <div className="max-sm:hidden">
-        <Button
+        {/* <Button
           className="font-semibold"
           variant="ghost"
           onClick={() => router.push('/dashboard')}
         >
           Home
-        </Button>
+        </Button> */}
 
         {/* TODO : WIP Pages */}
-        <Button className="font-semibold" variant="ghost">
+        <Button
+          className="font-semibold"
+          variant="ghost"
+          onClick={() => router.push('/dashboard')}
+        >
           Spotify
         </Button>
-        <Button className="font-semibold" variant="ghost">
+        <Button
+          className="font-semibold"
+          variant="ghost"
+          onClick={() => router.push('/soundcloud')}
+        >
           SoundCloud
         </Button>
       </div>
