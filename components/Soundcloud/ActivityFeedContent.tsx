@@ -55,7 +55,7 @@ export default function ActivityFeedContent() {
                 showArrow
               >
                 <div
-                  className="cursor-pointer hover:opacity-80 flex-1 aspect-square overflow-hidden"
+                  className="cursor-pointer hover:opacity-80 w-32 h-auto aspect-square overflow-hidden"
                   onClick={() => handleTrackClick(activity.origin)}
                 >
                   <Image
@@ -63,7 +63,7 @@ export default function ActivityFeedContent() {
                     alt={activity.origin.title || ''}
                     width={100}
                     height={100}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full  object-cover"
                   />
                 </div>
               </Tooltip>

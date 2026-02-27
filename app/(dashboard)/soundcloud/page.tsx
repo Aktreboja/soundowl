@@ -1,5 +1,4 @@
 'use client';
-
 import { useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button, Box, Spinner } from '@chakra-ui/react';
@@ -88,7 +87,7 @@ export default function SoundCloudPage() {
     }
 
     return (
-      <Box className="w-full max-w-[1080px] flex flex-col gap-4 justify-center items-center">
+      <Box className="app-container w-full max-w-[1080px] flex flex-col h-full gap-4 justify-center items-center">
         <LikedTracksContent />
         <ActivityFeedContent />
       </Box>
