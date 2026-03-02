@@ -1,4 +1,4 @@
-"use client"
+'use client';
 import { Box, Button } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 
@@ -8,7 +8,7 @@ function LandingPage() {
     router.push('/auth/login?returnTo=/getting-started');
   };
   return (
-    <Box>
+    <Box className="w-full">
       <div className="flex flex-col items-center justify-center w-full min-h-screen ">
         <h1 className="text-2xl font-bold text-center">Welcome to SoundOwl</h1>
         <div className="flex flex-col items-center justify-center gap-4">

@@ -2,12 +2,10 @@ import type { Metadata } from 'next';
 import { Auth0Provider } from '@auth0/nextjs-auth0/client';
 import { Provider as ChakraProvider } from '@/components/ui/provider';
 import { StoreProvider } from '@/lib/store/StoreProvider';
-import { AuthenticatedNavbar } from '@/components/Layout/AuthenticatedNavbar';
 import './globals.css';
 import { Suspense } from 'react';
 import { Spinner } from '@chakra-ui/react';
 import { CookiesNextProvider } from 'cookies-next';
-
 export const metadata: Metadata = {
   title: 'SoundOwl',
   description: 'Spotify Web Application',
@@ -24,9 +22,10 @@ export default function RootLayout({
         <StoreProvider>
           <ChakraProvider>
             <Auth0Provider>
-              <AuthenticatedNavbar />
               <CookiesNextProvider>
-                <Suspense fallback={<Spinner size="lg" />}>{children}</Suspense>
+                <Suspense fallback={<Spinner size="lg" />}>
+                  <div className="flex">{children}</div>
+                </Suspense>
               </CookiesNextProvider>
             </Auth0Provider>
           </ChakraProvider>

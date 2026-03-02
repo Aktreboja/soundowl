@@ -1,7 +1,7 @@
 'use client';
 
 import { useSpotifyAuth } from '@/hooks/useSpotifyAuth';
-import { Navbar } from './Navbar';
+import { Navbar } from '../Dashboard/ui/Navbar/Index';
 import { useGetAccountQuery } from '@/lib/store/accountApi';
 import { useUser } from '@auth0/nextjs-auth0/client';
 

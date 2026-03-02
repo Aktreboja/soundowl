@@ -39,8 +39,8 @@ export default function ConnectToServices({ account }: { account: User }) {
     };
     updateAccount(updatedAccount);
 
-    // Push to home page
-    router.push('/');
+    // Push to dashboard page
+    router.push('/dashboard');
   };
 
   const handleLogout = () => {

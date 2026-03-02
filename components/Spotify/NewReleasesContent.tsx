@@ -5,9 +5,9 @@ import { SpotifyAlbum, SpotifyArtist, SpotifyTrack } from '@/types/spotify';
 import { Box, Card, Skeleton, DialogRoot, Marquee } from '@chakra-ui/react';
 import Image from 'next/image';
 import { Tooltip } from '../ui/tooltip';
-import { AlbumDialog } from './AlbumDialog';
-import { ArtistDialog } from './ArtistDialog';
-import { TrackDialog } from './TrackDialog';
+import { AlbumDialog } from '../Dashboard/AlbumDialog';
+import { ArtistDialog } from '../Dashboard/ArtistDialog';
+import { TrackDialog } from '../Dashboard/TrackDialog';
 
 export default function NewReleasesContent() {
   const [selectedAlbum, setSelectedAlbum] = useState<SpotifyAlbum | null>(null);
