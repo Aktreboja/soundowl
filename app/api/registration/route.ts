@@ -9,12 +9,14 @@ interface RegistrationRequest {
   name: string;
   username: string;
   userId: string;
+  services?: string[];
+  hasRegistered?: boolean;
 }
 
 // POST: /api/registration
-// Creates a new user account in the database
+// Creates a new user account in the database (single insert; can include services + hasRegistered when completing onboarding)
 export async function POST(request: Request) {
-  const { email, name, username, userId } =
+  const { email, name, username, userId, services, hasRegistered } =
     (await request.json()) as RegistrationRequest;
 
   const newUser: User = {
@@ -24,8 +26,8 @@ export async function POST(request: Request) {
     userId,
     createdAt: new Date(),
     updatedAt: new Date(),
-    services: [],
-    hasRegistered: false,
+    services: services ?? [],
+    hasRegistered: hasRegistered ?? false,
   };
 
   const db = await connectToDatabase();

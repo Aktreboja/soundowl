@@ -1,10 +1,13 @@
 'use client';
 import { User } from '@auth0/nextjs-auth0/types';
 import { Button, Field, Input, Stack } from '@chakra-ui/react';
-import { toaster, Toaster } from '../ui/toaster';
+import { Toaster } from '../ui/toaster';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Info } from 'lucide-react';
+import { Tooltip } from '../ui/tooltip';
+import type { PendingAccount } from './GettingStartedContent';
 
 const formSchema = z.object({
   email: z.email({ message: 'Invalid email address' }),
@@ -14,65 +17,49 @@ const formSchema = z.object({
 
 export default function GettingStartedForm({
   user,
-  setCurrentStep,
+  pendingAccount,
+  onStep1Complete,
 }: {
   user: User | undefined;
-  setCurrentStep: (step: number) => void;
+  pendingAccount: PendingAccount | null;
+  onStep1Complete: (data: PendingAccount) => void;
 }) {
   const { register, handleSubmit } = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
-      email: user?.email,
-      name: user?.name,
-      username: user?.nickname,
+      email: pendingAccount?.email ?? user?.email,
+      name: pendingAccount?.name ?? user?.name,
+      username: pendingAccount?.username ?? user?.nickname,
     },
     resolver: zodResolver(formSchema),
   });
 
-  const handleRegistration = async (data: z.infer<typeof formSchema>) => {
-    try {
-      const response = await fetch('/api/registration', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ...data, userId: user?.sub }),
-      });
-
-      if (response.ok) {
-        toaster.create({
-          title: 'Registration Successful',
-          description: 'You have been registered successfully',
-          type: 'success',
-        });
-        setCurrentStep(1);
-      } else {
-        const error = await response.json();
-        toaster.create({
-          title: 'Registration Failed',
-          description: `${error.error}, Please try again`,
-          type: 'error',
-        });
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-      toaster.create({
-        title: 'Registration Failed',
-        description: 'An error occurred while registering',
-        type: 'error',
-      });
-    }
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
+    if (!user?.sub) return;
+    onStep1Complete({
+      email: data.email,
+      name: data.name,
+      username: data.username,
+      userId: user.sub,
+    });
   };
 
-  const onSubmit = (data: z.infer<typeof formSchema>) =>
-    handleRegistration(data);
-
   return (
-    <Stack
-      direction="column"
-      gap={4}
-      className="w-1/2 mx-auto max-sm:w-full max-sm:px-4"
-    >
+    <Stack direction="column" gap={6} className="w-full max-w-xl mx-auto">
       <Toaster />
+      <div className="space-y-1">
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-slate-50">
+            Create your SoundOwl profile
+          </h2>
+          <Tooltip content="This is the name that will be displayed on your profile and in the dashboard.">
+            <Info className="h-4 w-4" />
+          </Tooltip>
+        </div>
+
+        <p className="text-sm text-slate-400">
+          Confirm your details so we know who to personalise your dashboard for.
+        </p>
+      </div>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="w-full flex flex-col gap-4"
@@ -89,7 +76,9 @@ export default function GettingStartedForm({
           <Field.Label>Username</Field.Label>
           <Input type="text" {...register('username')} />
         </Field.Root>
-        <Button type="submit">Confirm</Button>
+        <Button type="submit" colorScheme="blue">
+          Continue
+        </Button>
       </form>
     </Stack>
   );

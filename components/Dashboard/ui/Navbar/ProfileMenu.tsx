@@ -43,7 +43,7 @@ export default function ProfileMenu({
               onLoad={() => setNavImageLoaded(true)}
             />
           </div>
-          <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white dark:border-gray-900" />
+          <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-800" />
         </button>
       </Dialog.Trigger>
 
@@ -64,7 +64,7 @@ export default function ProfileMenu({
             </div>
 
             <div className="relative -mt-12 flex justify-center">
-              <div className="relative w-24 h-24 rounded-full overflow-hidden ring-4 ring-white dark:ring-gray-900 shadow-lg">
+              <div className="relative w-24 h-24 rounded-full overflow-hidden ring-4 ring-slate-800 shadow-lg">
                 {!dialogImageLoaded && (
                   <SkeletonCircle
                     className="absolute inset-0 w-full h-full"

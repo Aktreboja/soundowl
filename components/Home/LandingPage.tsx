@@ -9,11 +9,11 @@ function LandingPage() {
   };
   return (
     <Box className="w-full">
-      <div className="flex flex-col items-center justify-center w-full min-h-screen ">
+      <div className="flex flex-col items-center justify-center w-full min-h-screen text-slate-100">
         <h1 className="text-2xl font-bold text-center">Welcome to SoundOwl</h1>
         <div className="flex flex-col items-center justify-center gap-4">
-          <p>Click on the button below to get started</p>
-          <Button variant="solid" colorScheme="blue" onClick={handleGetStarted}>
+          <p className="text-slate-300">Click on the button below to get started</p>
+          <Button variant="solid" colorPalette="indigo" onClick={handleGetStarted}>
             Get Started
           </Button>
         </div>

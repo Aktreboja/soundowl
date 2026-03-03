@@ -9,7 +9,7 @@ const system = createSystem(defaultConfig, {
   globalCss: {
     // Use :where() selector to give reset styles 0 specificity
     ':where(html)': {
-      colorScheme: 'light dark',
+      colorScheme: 'dark',
     },
   },
 });

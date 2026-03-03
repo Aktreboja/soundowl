@@ -51,10 +51,9 @@ export default function NewReleasesContent() {
   return (
     <Card.Root
       variant="elevated"
-      className="p-4 w-full flex flex-col gap-4"
-      bg={{ base: 'white', _dark: 'gray.800' }}
+      className="p-4 w-full flex flex-col gap-4 bg-slate-800/80 border border-slate-700/50 backdrop-blur-sm"
     >
-      <h1 className="text-lg font-bold">New from artists you follow</h1>
+      <h1 className="text-lg font-bold text-slate-100">New from artists you follow</h1>
       {isFetchingNewReleases && (
         <div className="flex gap-4 flex-row w-full">
           {Array.from({ length: 7 }).map((_, index) => (
@@ -62,7 +61,7 @@ export default function NewReleasesContent() {
               key={index}
               className="aspect-square w-full h-full flex-1"
               borderRadius="md"
-              bg={{ base: 'gray.200', _dark: 'gray.700' }}
+              bg="slate.700"
               style={{
                 animationDelay: `${index * 60}ms`,
                 animationDuration: '1.2s',
@@ -74,7 +73,7 @@ export default function NewReleasesContent() {
       )}
 
       {isError && (
-        <div className="text-center py-4 text-red-600 dark:text-red-400">
+        <div className="text-center py-4 text-red-400">
           Failed to load new releases. Please try again.
         </div>
       )}
