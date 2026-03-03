@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { Box, Button, SkeletonCircle } from '@chakra-ui/react';
 import type { SpotifyProfile } from '@/types/spotify';
-import { ColorModeButton } from '../../../ui/color-mode';
 import { useRouter } from 'next/navigation';
 import ProfileMenu from './ProfileMenu';
 
@@ -27,7 +26,7 @@ export const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/spotify/logout', { method: 'POST' });
+      // await fetch('/api/spotify/logout', { method: 'POST' });
       setProfile(null);
       window.location.href = '/auth/logout';
     } catch (err) {
@@ -38,9 +37,7 @@ export const Navbar = () => {
   return (
     <Box
       as="nav"
-      bg={{ base: 'white', _dark: 'gray.800' }}
-      _dark={{ borderColor: 'gray.700' }}
-      className="px-6 h-16 py-4 border-b border-gray-200 w-full flex items-center justify-between"
+      className="px-6 h-16 py-4 w-full flex items-center justify-between bg-slate-900/80 border-b border-slate-700/50 backdrop-blur-sm text-slate-100"
     >
       <p className="text-xl font-bold tracking-tight">SoundOwl</p>
 
@@ -72,7 +69,6 @@ export const Navbar = () => {
       </div>
 
       <div className="flex items-center gap-4">
-        <ColorModeButton />
         {profile && profile.images && profile.images.length > 0 ? (
           <ProfileMenu
             key={profile.images[0].url}

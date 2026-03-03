@@ -1,26 +1,28 @@
 'use client';
-import {
-  Button,
-  CheckboxCard,
-  CheckboxGroup,
-  Float,
-  Icon,
-  SimpleGrid,
-} from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react';
 import { useState, useEffect, useCallback } from 'react';
 import { FaSpotify, FaSoundcloud } from 'react-icons/fa';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useGetSpotifyProfileQuery } from '@/lib/store/spotifyApi';
-import { useUpdateAccountMutation } from '@/lib/store/accountApi';
-import { User } from '@/types/User';
+import { toaster, Toaster } from '../ui/toaster';
+import ResourceCard from './ResourceCard';
+import type { PendingAccount } from './GettingStartedContent';
 
-export default function ConnectToServices({ account }: { account: User }) {
+type ConnectToServicesProps = {
+  profile: PendingAccount;
+  onGoBack?: () => void;
+};
+
+export default function ConnectToServices({
+  profile,
+  onGoBack,
+}: ConnectToServicesProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   // Profile query may be used in the future for displaying connected status
   useGetSpotifyProfileQuery();
-  const [updateAccount] = useUpdateAccountMutation();
 
   const handleSpotifyConnect = () => {
     router.push('/api/spotify/auth');
@@ -30,35 +32,56 @@ export default function ConnectToServices({ account }: { account: User }) {
     router.push('/api/soundcloud/auth');
   };
 
-  // On Finish, update the account and push to home page
-  const handleFinish = async () => {
-    const updatedAccount = {
-      ...account,
-      services: selectedServices,
-      hasRegistered: true,
-    };
-    updateAccount(updatedAccount);
-
-    // Push to dashboard page
-    router.push('/dashboard');
-  };
-
-  const handleLogout = () => {
-    router.push('/auth/logout');
-  };
-
   const items = [
     {
       label: 'Spotify',
-      icon: <Icon as={FaSpotify} />,
-      onClick: handleSpotifyConnect,
+      description:
+        'Connect your Spotify account to sync playlists and activity.',
+      icon: <FaSpotify className="h-5 w-5 text-[#1DB954]" />,
+      onConnect: handleSpotifyConnect,
     },
     {
       label: 'SoundCloud',
-      icon: <Icon as={FaSoundcloud} />,
-      onClick: handleSoundCloudConnect,
+      description:
+        'Connect your SoundCloud account to sync tracks and likes.',
+      icon: <FaSoundcloud className="h-5 w-5 text-[#FF5500]" />,
+      onConnect: handleSoundCloudConnect,
     },
   ];
+
+  // On Finish, single DB insert with full payload then redirect
+  const handleFinish = async () => {
+    setIsSubmitting(true);
+    try {
+      const response = await fetch('/api/registration', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...profile,
+          services: selectedServices,
+          hasRegistered: true,
+        }),
+      });
+      if (response.ok) {
+        router.push('/dashboard');
+      } else {
+        const error = await response.json();
+        toaster.create({
+          title: 'Registration failed',
+          description: error.error ?? 'Please try again.',
+          type: 'error',
+        });
+      }
+    } catch {
+      toaster.create({
+        title: 'Registration failed',
+        description: 'An error occurred. Please try again.',
+        type: 'error',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const addSoundCloudIfMissing = useCallback(() => {
     setSelectedServices((prev) =>
@@ -99,46 +122,49 @@ export default function ConnectToServices({ account }: { account: User }) {
       })
       .catch(() => {});
   }, [addSoundCloudIfMissing, addSpotifyIfMissing]);
-
-
-
-
   return (
-    <div className="flex flex-col items-center justify-center gap-4">
-      <CheckboxGroup
-        value={selectedServices}
-        onValueChange={(value) => setSelectedServices(value)}
-      >
-        <SimpleGrid minChildWidth="300px" gap="2" className="h-full">
-          {items.map((item) => (
-            <CheckboxCard.Root
-              defaultChecked={selectedServices.includes(item.label)}
-              checked={selectedServices.includes(item.label)}
-              disabled={selectedServices.includes(item.label)}
-              variant={'subtle'}
-              align="center"
-              onClick={item.onClick}
-              key={item.label}
-              className="cursor-pointer"
-            >
-              <CheckboxCard.HiddenInput />
-              <CheckboxCard.Control>
-                <CheckboxCard.Content>
-                  <Icon fontSize="2xl" mb="2">
-                    {item.icon}
-                  </Icon>
-                  <CheckboxCard.Label>{item.label}</CheckboxCard.Label>
-                </CheckboxCard.Content>
-                <Float placement="top-end" offset="6">
-                  <CheckboxCard.Indicator />
-                </Float>
-              </CheckboxCard.Control>
-            </CheckboxCard.Root>
-          ))}
-        </SimpleGrid>
-      </CheckboxGroup>
-      <Button onClick={handleFinish}>Finish</Button>
-      <Button onClick={handleLogout}>Logout</Button>
+    <div className="flex w-full flex-col gap-6">
+      <Toaster />
+      <div className="space-y-1">
+        <h2 className="text-lg font-semibold text-slate-50">
+          Connect your music services
+        </h2>
+        <p className="text-sm text-slate-400">
+          Link the accounts you use so SoundOwl can pull in playlists, likes,
+          and listening stats.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {items.map((item) => (
+          <ResourceCard
+            key={item.label}
+            label={item.label}
+            description={item.description}
+            icon={item.icon}
+            isConnected={selectedServices.includes(item.label)}
+            onConnect={item.onConnect}
+          />
+        ))}
+      </div>
+
+      <div className="mt-2 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex gap-2">
+          {onGoBack && (
+            <Button variant="ghost" onClick={onGoBack}>
+              Go back
+            </Button>
+          )}
+        </div>
+        <Button
+          colorScheme="blue"
+          onClick={handleFinish}
+          disabled={selectedServices.length === 0 || isSubmitting}
+          loading={isSubmitting}
+        >
+          Finish
+        </Button>
+      </div>
     </div>
   );
 }

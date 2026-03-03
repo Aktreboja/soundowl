@@ -52,11 +52,10 @@ export function DashboardCarouselCard<T>({
   return (
     <Card.Root
       variant="elevated"
-      className="p-4 w-full flex flex-col gap-4"
-      bg={{ base: 'white', _dark: 'gray.800' }}
+      className="p-4 w-full flex flex-col gap-4 bg-slate-800/80 border border-slate-700/50 backdrop-blur-sm"
     >
       <div>
-        <h2 className="font-bold text-lg mb-2">{title}</h2>
+        <h2 className="font-bold text-lg mb-2 text-slate-100">{title}</h2>
         {select && (
           <SelectRoot
             collection={createListCollection({
@@ -88,7 +87,7 @@ export function DashboardCarouselCard<T>({
               key={index}
               className="aspect-square w-full h-full flex-1"
               borderRadius="md"
-              bg={{ base: 'gray.200', _dark: 'gray.700' }}
+              bg="slate.700"
               style={{
                 animationDelay: `${index * 60}ms`,
                 animationDuration: '1.2s',
@@ -100,7 +99,7 @@ export function DashboardCarouselCard<T>({
       )}
 
       {isError && (
-        <div className="text-center py-4 text-red-600 dark:text-red-400">
+        <div className="text-center py-4 text-red-400">
           {errorMessage}
         </div>
       )}

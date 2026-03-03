@@ -97,7 +97,7 @@ export default function HomeContent() {
 
   // If profile is found, display user information (Dashboard)
   return (
-    <Box className="app-container" bg={{ base: 'gray.100', _dark: 'gray.900' }}>
+    <Box className="app-container">
       <Box className="w-full max-w-[1080px] flex flex-col gap-4 justify-center items-center grow">
         <NewReleasesContent />
         <TopTracksContent />
