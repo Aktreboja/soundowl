@@ -5,6 +5,7 @@ import { Box, Button } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import { Music2, ArrowRight, ChevronDown } from 'lucide-react';
 import { LandingBackground } from './LandingBackground';
+import Footer from './Footer';
 
 function LandingPage() {
   const router = useRouter();
@@ -18,7 +19,9 @@ function LandingPage() {
   };
 
   const scrollToHowItWorks = () => {
-    document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+    document
+      .getElementById('how-it-works')
+      ?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -27,7 +30,10 @@ function LandingPage() {
 
       {/* Header */}
       <header className="sticky top-0 z-20 flex items-center justify-between w-full px-6 py-4 bg-slate-900/80 border-b border-slate-700/50 backdrop-blur-sm">
-        <Link href="/" className="flex items-center gap-2 text-slate-100 font-semibold">
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-slate-100 font-semibold"
+        >
           <Music2 className="h-6 w-6 text-indigo-400" aria-hidden />
           <span>SoundOwl</span>
         </Link>
@@ -61,7 +67,8 @@ function LandingPage() {
           One place for your music
         </h1>
         <p className="text-slate-400 text-lg max-w-xl mb-8 animate-fadeIn">
-          Connect your streaming services and see your listening in one simple dashboard.
+          Connect your streaming services and see your listening in one simple
+          dashboard.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fadeIn">
           <Button
@@ -110,12 +117,14 @@ function LandingPage() {
               {
                 step: '1',
                 title: 'Connect',
-                description: 'Link your Spotify and SoundCloud accounts in one click.',
+                description:
+                  'Link your Spotify and SoundCloud accounts in one click.',
               },
               {
                 step: '2',
                 title: 'See your music',
-                description: 'Your library and listening history in a single view.',
+                description:
+                  'Your library and listening history in a single view.',
               },
               {
                 step: '3',
@@ -130,13 +139,16 @@ function LandingPage() {
                 <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-indigo-500/20 text-indigo-300 font-bold text-lg mb-4">
                   {step}
                 </span>
-                <h3 className="text-lg font-semibold text-slate-100 mb-2">{title}</h3>
+                <h3 className="text-lg font-semibold text-slate-100 mb-2">
+                  {title}
+                </h3>
                 <p className="text-sm text-slate-400">{description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
+      <Footer />
     </Box>
   );
 }
